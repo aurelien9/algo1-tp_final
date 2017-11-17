@@ -3,6 +3,12 @@
 
 #define MAX_LENGTH_MENSAJE 140
 
+typedef struct
+{
+  unsigned int year;
+  unsigned int month;
+  unsigned int day;
+}
 
 typedef struct
 {
@@ -37,5 +43,15 @@ typedef struct usuario {
   vector_s amigos;
   lista_s mensajes;
 }usuario;
+
+
+typedef struct lista_usuarios;
+
+struct lista_usuarios
+{
+  lista_usuarios *sig;
+  usuario *datos;
+};
+
 
 #endif
