@@ -43,8 +43,8 @@ typedef struct usuario
 	int id;
 	t_cadena nombre;
 	t_cadena usuario;
-	vector_s amigos;
-	lista_s mensajes;
+	vector_s* amigos;
+	lista_s* mensajes;
 }usuario;
 
 
