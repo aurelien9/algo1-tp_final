@@ -5,17 +5,11 @@
 
 typedef char* t_cadena;
 
-typedef struct
-{
-	unsigned int year;
-	unsigned int month;
-	unsigned int day;
-}
 
 typedef struct
 {
 	int num;
-	t_date stamp;
+	char stamp[10];
 	char mensaje[MAX_LENGTH_MENSAJE];
 	int id;
 }mensaje;
@@ -48,11 +42,11 @@ typedef struct usuario
 }usuario;
 
 
-typedef struct lista_usuarios;
+typedef struct userList userList;
 
-struct lista_usuarios
+struct userList
 {
-	lista_usuarios *sig;
+	userList *sig;
 	usuario *datos;
 };
 
