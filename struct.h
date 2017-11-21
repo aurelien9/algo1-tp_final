@@ -2,6 +2,7 @@
 #define STRUCT_H
 
 #define MAX_LENGTH_MENSAJE 140
+#define MAX_LENGTH_STAMP 10
 
 typedef char* t_cadena;
 
@@ -9,9 +10,9 @@ typedef char* t_cadena;
 typedef struct
 {
 	int num;
-	char stamp[10];
-	char mensaje[MAX_LENGTH_MENSAJE];
+	char stamp[MAX_LENGTH_STAMP];
 	int id;
+	char mensaje[MAX_LENGTH_MENSAJE];
 }mensaje;
 
 
