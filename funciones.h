@@ -7,7 +7,7 @@ status_t cargar_usuario(userList** v, char* renglon, FILE *pf);
 
 char* convert_renglon_usuario(char* renglon);
 
-int convert_renglon_id(char** renglon);
+int convert_renglon_id(char* renglon);
 
 status_t crear_vector_amigos(char* renglon, usuario* user);
 
@@ -15,7 +15,7 @@ int numero_amigos(char* renglon);
 
 status_t crear_lista_mensaje(usuario* user, FILE* pf);
 
-void supp_header(char** renglon);
+char* supp_header(char* renglon);
 
 char* strdup(const char* sc);
 

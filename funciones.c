@@ -56,12 +56,11 @@ status_t cargar_usuario(userList** v, char* renglon, FILE *pf)
 
 	fgets(renglon, MAX_LENGTH, pf);
 
-	actual->datos->id = convert_renglon_id(&renglon);
+	actual->datos->id = convert_renglon_id(renglon);
 
 	fgets(renglon, MAX_LENGTH, pf);
 
-	supp_header(&renglon);
-	actual->datos->nombre = renglon;
+	actual->datos->nombre = supp_header(renglon);
 
 	fgets(renglon, MAX_LENGTH, pf);
 
@@ -81,7 +80,7 @@ char* convert_renglon_usuario(char* renglon)
 	char* renglon2;
 	int i, j;
 
-	renglon2 = (char*)malloc(sizeof(char)*(strlen(renglon) - 3));
+	renglon2 = (char*)calloc((strlen(renglon) - 3),sizeof(char));
 
 	for(i = 1, j = 0; i < strlen(renglon) - 2; i++, j++)
 	{
@@ -94,12 +93,14 @@ char* convert_renglon_usuario(char* renglon)
 
 
 
-int convert_renglon_id(char** renglon)
+int convert_renglon_id(char* renglon)
 {
 	int i;
-	supp_header(renglon);
-	i = atoi(*renglon);
-	free(*renglon);
+	char* renglon2;
+
+	renglon2 = supp_header(renglon);
+	i = atoi(renglon2);
+	free(renglon2);
 
 	return i;
 }
@@ -108,13 +109,13 @@ int convert_renglon_id(char** renglon)
 
 status_t crear_vector_amigos(char* renglon, usuario* user)
 {
-	int i = 0, j = 0, a;
+	int i = 0, j = 0, a, b;
 	char id[5];
 
 	if (!user)
 		return ST_ERROR_PUNTERO_NULO;
 
-	(user->amigos) = (vector_s*)calloc(1,sizeof(vector_s));/* no funciona con malloc ^^*/
+	(user->amigos) = (vector_s*)malloc(sizeof(vector_s));/* no funciona con malloc ^^*/
 
 	user->amigos->real = numero_amigos(renglon);
 	user->amigos->alloc = user->amigos->real + 2; /* creamos un vector mas grande para los proximos amigos*/
@@ -128,7 +129,11 @@ status_t crear_vector_amigos(char* renglon, usuario* user)
 	while(j < user->amigos->real)
 	{
 		a = 0;
-		while(renglon[i] != COMA && renglon[i] != '\n')
+
+		for(b = 0; b < 5; b++) /*para reinit id[]*/
+			id[b] = '\0';
+
+		while(renglon[i] != COMA && renglon[i] != '\n' && renglon[i] != '\0')
 		{
 			id[a] = renglon[i];
 			i++;
@@ -170,6 +175,7 @@ status_t crear_lista_mensaje(usuario* user, FILE* pf)
 	size_t l;
 	lista_s *actual = user->mensajes;
 	lista_s *antes = user->mensajes;
+	int i;
 
 	while(fgets(renglon, MAX_LENGTH_MENSAJE_LARGO, pf) && *renglon != '\n')
 	{
@@ -197,13 +203,16 @@ status_t crear_lista_mensaje(usuario* user, FILE* pf)
 		if (split(&arreglo, renglon, ',', &l) != ST_OK)
 			return ST_ERROR_CREAR_LISTA;
 
-		renglon2 = arreglo[0];
-		supp_header(&renglon2);
-
+		renglon2 = supp_header(arreglo[0]);
 		actual->datos->num = atoi(renglon2);
 		free(renglon2);
 		strncpy(actual->datos->stamp, arreglo[1], MAX_LENGTH_STAMP);
 		actual->datos->id = atoi(arreglo[2]);
+
+		for(i = 0; i < strlen(arreglo[3]); i++)
+			if(arreglo[3][i] == '\n')
+				arreglo[3][i] = '\0'; /*para supprimir el enter al fin del mensaje*/
+
 		strncpy(actual->datos->mensaje, arreglo[3], MAX_LENGTH_MENSAJE);
 
 		if (destruir_arreglo_cadenas(&arreglo, l) != ST_OK)
@@ -214,29 +223,30 @@ status_t crear_lista_mensaje(usuario* user, FILE* pf)
 }
 
 
-void supp_header(char** renglon)
+char* supp_header(char* renglon)
 {
 	int i = 0, j = 0;
 	char* renglon2;
 
-	while((*renglon)[i] != IGUAL)
+	while(renglon[i] != IGUAL)
 		i++;
 	i += 2;
 
-	renglon2 = (char*)calloc((strlen(*renglon)-i),sizeof(char));
+	renglon2 = (char*)calloc((strlen(renglon)- i),sizeof(char));
 
-	for (; i < strlen(*renglon); i++)
+	while((renglon[i] != '\n') && (renglon[i] != '\0'))
 	{
-		renglon2[j] = (*renglon)[i];
+		renglon2[j] = renglon[i];
 		j++;
+		i++;
 	}
 
-	if(renglon2[j-1] == '\n')
-		renglon2[j-1] = '\0';
-	else
-		renglon2[j] = '\0';
+	renglon2[j] = '\0';
 
-	*renglon = renglon2;
+	if (renglon2[j-1] == '!') /*solution of a strange error*/
+		renglon2[j-1] = '\0';
+
+	return renglon2;
 }
 
 
@@ -427,7 +437,9 @@ status_t imprimir_usuarios(userList* v, FILE* pf)
 			return ST_ERROR_IMPRIMIR_DATOS;
 		}
 		actual = actual->sig;
-		fprintf(pf, "\n");
+
+		if (actual != NULL) /*para supprimir el \n despues del ultimo usuario*/
+			fprintf(pf, "\n");
 	}
 	return ST_OK;
 }
