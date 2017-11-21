@@ -2,7 +2,7 @@
 #define STRUCT_H
 
 #define MAX_LENGTH_MENSAJE 140
-#define MAX_LENGTH_STAMP 10
+#define MAX_LENGTH_STAMP 11
 
 typedef char* t_cadena;
 

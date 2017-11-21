@@ -50,7 +50,8 @@ status_t cargar_usuario(userList** v, char* renglon, FILE *pf)
 
 	actual->sig = NULL;
 	actual->datos = (usuario*)malloc(sizeof(usuario));
-
+	actual->datos->amigos = NULL;
+	actual->datos->mensajes = NULL;
 	/* completar el usuario*/
 	actual->datos->usuario = convert_renglon_usuario(renglon);
 
@@ -60,7 +61,7 @@ status_t cargar_usuario(userList** v, char* renglon, FILE *pf)
 
 	fgets(renglon, MAX_LENGTH, pf);
 
-	actual->datos->nombre = supp_header(renglon);
+	actual->datos->nombre = supp_header(renglon,0);
 
 	fgets(renglon, MAX_LENGTH, pf);
 
@@ -80,7 +81,7 @@ char* convert_renglon_usuario(char* renglon)
 	char* renglon2;
 	int i, j;
 
-	renglon2 = (char*)calloc((strlen(renglon) - 3),sizeof(char));
+	renglon2 = (char*)calloc((strlen(renglon) - 2),sizeof(char));
 
 	for(i = 1, j = 0; i < strlen(renglon) - 2; i++, j++)
 	{
@@ -98,7 +99,7 @@ int convert_renglon_id(char* renglon)
 	int i;
 	char* renglon2;
 
-	renglon2 = supp_header(renglon);
+	renglon2 = supp_header(renglon,0);
 	i = atoi(renglon2);
 	free(renglon2);
 
@@ -203,10 +204,12 @@ status_t crear_lista_mensaje(usuario* user, FILE* pf)
 		if (split(&arreglo, renglon, ',', &l) != ST_OK)
 			return ST_ERROR_CREAR_LISTA;
 
-		renglon2 = supp_header(arreglo[0]);
+		renglon2 = supp_header(arreglo[0],1);
 		actual->datos->num = atoi(renglon2);
 		free(renglon2);
+
 		strncpy(actual->datos->stamp, arreglo[1], MAX_LENGTH_STAMP);
+
 		actual->datos->id = atoi(arreglo[2]);
 
 		for(i = 0; i < strlen(arreglo[3]); i++)
@@ -223,7 +226,7 @@ status_t crear_lista_mensaje(usuario* user, FILE* pf)
 }
 
 
-char* supp_header(char* renglon)
+char* supp_header(char* renglon, int opcion) /*opcion es para el caso donde no '\n' al fin*/
 {
 	int i = 0, j = 0;
 	char* renglon2;
@@ -232,7 +235,8 @@ char* supp_header(char* renglon)
 		i++;
 	i += 2;
 
-	renglon2 = (char*)calloc((strlen(renglon)- i),sizeof(char));
+
+	renglon2 = (char*)calloc((strlen(renglon)- i + opcion),sizeof(char));
 
 	while((renglon[i] != '\n') && (renglon[i] != '\0'))
 	{
@@ -357,6 +361,8 @@ status_t destruir_usuarios(userList** v)
 		actual = next;
 	}
 
+	destruir_usuario(&(actual->datos));
+	free(actual);
 	*v = NULL;
 
 	return ST_OK;
@@ -414,6 +420,7 @@ status_t destruir_lista_mensaje(usuario* user)
 		actual = next;
 	}
 
+	free(actual->datos);
 	free(actual);
 
 	user->mensajes = NULL;
@@ -461,7 +468,10 @@ status_t imprimir_usuario(usuario* user, FILE* pf)
 
 	while(actual != NULL)
 	{
-		fprintf(pf, "mensaje = %i,%s,%i,%s\n", actual->datos->num, actual->datos->stamp, actual->datos->id, actual->datos->mensaje);
+		fprintf(pf, "mensaje = %i,", actual->datos->num);
+		fprintf(pf, "%s,", actual->datos->stamp);
+		fprintf(pf, "%i,", actual->datos->id);
+		fprintf(pf, "%s\n", actual->datos->mensaje);
 		actual = actual->sig;
 	}
 

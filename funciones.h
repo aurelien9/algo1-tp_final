@@ -15,7 +15,7 @@ int numero_amigos(char* renglon);
 
 status_t crear_lista_mensaje(usuario* user, FILE* pf);
 
-char* supp_header(char* renglon);
+char* supp_header(char* renglon, int opcion);
 
 char* strdup(const char* sc);
 

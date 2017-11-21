@@ -34,5 +34,7 @@ int main(int argc, char* argv[])
 		return EXIT_FAILURE;
 	}
 
+	fclose(pf);
+
 	return EXIT_SUCCESS;
 }
