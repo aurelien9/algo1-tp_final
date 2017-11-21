@@ -20,8 +20,8 @@ typedef struct lista_s lista_s;
 
 struct lista_s
 {
-	lista_s *sig;
-	mensaje *datos;
+	lista_s* sig;
+	mensaje* datos;
 };
 
 
@@ -29,7 +29,7 @@ typedef struct
 {
 	int real;
 	int alloc;
-	int *datos;
+	int* datos;
 }vector_s;
 
 
@@ -47,8 +47,8 @@ typedef struct userList userList;
 
 struct userList
 {
-	userList *sig;
-	usuario *datos;
+	userList* sig;
+	usuario* datos;
 };
 
 
