@@ -17,24 +17,30 @@ int main(int argc, char* argv[])
 	FILE *pout = stdout;
 
 	pf = fopen(argv[1], "r"); /*SOLO PARA PROBAR*/
-	/* aca debemos validar los argumentos de la funcion main*/
-
-	if(cargar_usuarios(&v,pf) != ST_OK)
+	
+	estado = validar_argumentos(argc, argv, pf);
+	
+	if(estado== ST_OK) /*corroborra los argumentos esten bien para continuar con el programa*/
 	{
-		return EXIT_FAILURE;
+		if((estado=cargar_usuarios(&v,pf)) != ST_OK)
+		{
+			imprimir_estado(estado);
+			return EXIT_FAILURE;
+		}
+	
+		if((estado=imprimir_usuarios(v,pout)) != ST_OK)
+		{
+			imprimir_estado(estado);
+			return EXIT_FAILURE;
+		}
+
+		if((estado=destruir_usuarios(&v)) != ST_OK)
+		{
+			imprimir_estado(estado);
+			return EXIT_FAILURE;
+		}
+		fclose(pf);
 	}
-
-	if(imprimir_usuarios(v,pout) != ST_OK)
-	{
-		return EXIT_FAILURE;
-	}
-
-	if(destruir_usuarios(&v) != ST_OK)
-	{
-		return EXIT_FAILURE;
-	}
-
-	fclose(pf);
-
+		imprimir_estado(estado);
 	return EXIT_SUCCESS;
 }
