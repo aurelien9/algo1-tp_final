@@ -6,7 +6,87 @@
 #include "tipos.h"
 #include "funciones.h"
 
+////////////////////////////////FUNCIONES DE PROTECCION//////////////////////////////////
+status_t validar_argumentos(int argc, char* argv[],FILE *file)
+{
+	if(!(argv) || !(file))
+	{
+		return ST_ERROR_PUNTERO_NULO;
+	}
+	if(argc < 2)
+	{
+		return ST_ERROR_CANT_ARGC;
+		/*fprintf(stdout,"Error: no se ha agregado ningun argumento")*/
+	}
+	return ST_OK;
+}
 
+void imprimir_estado(status_t estado)
+{
+	switch(estado)
+	{
+		case ST_OK:
+		{
+			fprintf(stderr, "%s:%s\n", ERR_PREFIJO, TXT_OK);
+			break;
+		}
+		case ST_ERROR_PUNTERO_NULO:
+		{
+			fprintf(stderr, "%s:%s\n", ERR_PREFIJO, TXT_ERROR_PUNTERO_NULO);
+			break;
+		}
+		case ST_ERROR_NOMEM:
+		{
+			fprintf(stderr, "%s:%s\n", ERR_PREFIJO, TXT_ERROR_NOMEM);
+			break;
+		}
+		case ST_ERROR_CANT_ARGC:
+		{
+			fprintf(stderr, "%s:%s\n", ERR_PREFIJO, TXT_ERROR_CANT_ARGC);
+			break;
+		}
+		case ST_ERROR_OPEN_ARCHIVO:
+		{
+			fprintf(stderr, "%s:%s\n", ERR_PREFIJO, TXT_ERROR_OPEN_ARCHIVO);
+			break;
+		}
+		case ST_ERROR_DESTRUIR_ARREGLO:
+		{
+			fprintf(stderr, "%s:%s\n", ERR_PREFIJO, TXT_ERROR_DESTRUIR_ARREGLO);
+			break;
+		}
+		case ST_ERROR_CREAR_LISTA:
+		{
+			fprintf(stderr, "%s:%s\n", ERR_PREFIJO, TXT_ERROR_CREAR_LISTA);
+			break;
+		}
+		case ST_ERROR_DESTRUIR_VECTOR:
+		{
+			fprintf(stderr, "%s:%s\n", ERR_PREFIJO, TXT_ERROR_DESTRUIR_VECTOR);
+			break;
+		}
+		case ST_ERROR_DESTRUIR_LISTA:
+		{
+			fprintf(stderr, "%s:%s\n", ERR_PREFIJO, TXT_ERROR_DESTRUIR_LISTA);
+			break;
+		}
+		case ST_ERROR_CREAR_VECTOR:
+		{
+			fprintf(stderr, "%s:%s\n", ERR_PREFIJO, TXT_ERROR_CREAR_VECTOR);
+			break;
+		}
+		case ST_ERROR_IMPRIMIR_DATOS:
+		{
+			fprintf(stderr, "%s:%s\n", ERR_PREFIJO, TXT_ERROR_IMPRIMIR_DATOS);
+			break;
+		}
+		default:
+		{
+			fprintf(stderr, "%s:%s\n", ERR_PREFIJO, TXT_ERROR_ESTADO);
+		}
+	}
+}
+///////////////////////////////////////////////////////////////////////////////////////////////////////
 
 status_t cargar_usuarios(userList** v, FILE *pf)
 {
