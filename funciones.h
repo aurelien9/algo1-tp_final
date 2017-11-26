@@ -35,4 +35,8 @@ status_t imprimir_usuarios(userList* v, FILE* pf);
 
 status_t imprimir_usuario(usuario* user, FILE* pf);
 
+status_t validar_argumentos(int argc, char* argv[],FILE *file);
+
+void imprimir_estado(status_t estado);
+
 #endif
