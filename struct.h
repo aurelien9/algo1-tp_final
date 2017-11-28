@@ -6,6 +6,31 @@
 
 typedef char* t_cadena;
 
+typedef enum {
+	RV_SUCCESS,
+	RV_ILLEGAL,
+	RV_ENOMEM,
+	RV_ERROR_IMPRIMIR,
+	RV_ERROR_DESTRUIR_MENSAJES,
+	RV_ERROR_DESTRUIR_NODO
+}retval_t;
+
+typedef struct nodo_t
+{
+	struct nodo_t *sig;
+	void *dato;
+}nodo_t, *lista_t;
+
+
+typedef struct tda_lista
+{
+	nodo_t *l;
+	retval_t (*destructor)(void**);
+	retval_t (*imprimir)(struct tda_lista*);
+	FILE* pfin;
+	FILE* pfout;
+}tda_lista;
+
 
 typedef struct
 {
@@ -13,16 +38,7 @@ typedef struct
 	char stamp[MAX_LENGTH_STAMP];
 	int id;
 	char mensaje[MAX_LENGTH_MENSAJE];
-}mensaje;
-
-
-typedef struct lista_s lista_s;
-
-struct lista_s
-{
-	lista_s* sig;
-	mensaje* datos;
-};
+}mensaje_t;
 
 
 typedef struct
@@ -30,7 +46,7 @@ typedef struct
 	int real;
 	int alloc;
 	int* datos;
-}vector_s;
+}vector_t;
 
 
 typedef struct usuario
@@ -38,18 +54,11 @@ typedef struct usuario
 	t_cadena usuario;
 	int id;
 	t_cadena nombre;
-	vector_s* amigos;
-	lista_s* mensajes;
-}usuario;
+	vector_t* amigos;
+	tda_lista* mensajes;
+}usuario_t;
 
 
-typedef struct userList userList;
-
-struct userList
-{
-	userList* sig;
-	usuario* datos;
-};
 
 
 #endif

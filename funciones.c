@@ -5,74 +5,72 @@
 #include "struct.h"
 #include "tipos.h"
 #include "funciones.h"
+#include "LISTA.h"
 
 
 
-status_t cargar_usuarios(userList** v, FILE *pf)
+retval_t cargar_usuarios(tda_lista *tda)
 {
-
 	char renglon[MAX_LENGTH] = "";
+	retval_t rv;
 
-	while(fgets(renglon, MAX_LENGTH, pf) != NULL)
+	if(tda == NULL || tda->pfin == NULL)
+		return RV_ILLEGAL;
+
+	while(fgets(renglon, MAX_LENGTH, tda->pfin) != NULL)
 	{
 		if(renglon[0] == CROCHETE_1)
 		{
-			cargar_usuario(v, renglon, pf);
+			if((rv = cargar_usuario(tda, renglon)) != RV_SUCCESS)
+				return rv;
 		}
 	}
-
-	return ST_OK;
+	return RV_SUCCESS;
 }
 
 
 
-status_t cargar_usuario(userList** v, char* renglon, FILE *pf)
+retval_t cargar_usuario(tda_lista *tda, char* renglon)
 {
-	userList* actual = *v;
-	userList* antes = *v;
+	retval_t rv;
+	usuario_t *dato;
 
-	/* creacion del usuario*/
-	if(actual == NULL) /*si es el primer usuario*/
-	{
-		actual = (userList*)malloc(sizeof(userList));
-		*v = actual;
-	}
-	else /*si no es el primer usuario vamos hasta la fin de la lista*/
-	{
-		while(actual != NULL)
-		{
-			antes = actual;
-			actual = actual->sig;
-		}
-		actual = (userList*)malloc(sizeof(userList));
-		antes->sig = actual;
-	}
+	if(tda == NULL || renglon == NULL || tda->pfin == NULL)
+		return RV_ILLEGAL;
 
-	actual->sig = NULL;
-	actual->datos = (usuario*)malloc(sizeof(usuario));
-	actual->datos->amigos = NULL;
-	actual->datos->mensajes = NULL;
-	/* completar el usuario*/
-	actual->datos->usuario = convert_renglon_usuario(renglon);
 
-	fgets(renglon, MAX_LENGTH, pf);
+	/* creamos el usuario ---------------------------------------*/
+	dato = (usuario_t*)malloc(sizeof(usuario_t));
 
-	actual->datos->id = convert_renglon_id(renglon);
+	dato->usuario = convert_renglon_usuario(renglon);
 
-	fgets(renglon, MAX_LENGTH, pf);
+	fgets(renglon, MAX_LENGTH, tda->pfin);
+	dato->id = convert_renglon_id(renglon);
 
-	actual->datos->nombre = supp_header(renglon,0);
+	fgets(renglon, MAX_LENGTH, tda->pfin);
+	dato->nombre = supp_header(renglon);
 
-	fgets(renglon, MAX_LENGTH, pf);
+	fgets(renglon, MAX_LENGTH, tda->pfin);
+	if ((rv = crear_vector_amigos(renglon, &(dato->amigos))) != RV_SUCCESS)
+		return rv;
 
-	if (crear_vector_amigos(renglon, actual->datos) != ST_OK)
-		return ST_ERROR_CREAR_VECTOR;
+	dato->mensajes = (tda_lista*)malloc(sizeof(tda_lista));
+	dato->mensajes->l = NULL;
+	dato->mensajes->destructor = LISTA_destruir_mensaje;
+	dato->mensajes->pfin = tda->pfin;
+	dato->mensajes->pfout = tda->pfout;
+	dato->mensajes->imprimir = LISTA_imprimir_mensaje;
 
-	if (crear_lista_mensaje(actual->datos, pf) != ST_OK)
-		return ST_ERROR_CREAR_LISTA;
+	if ((rv = cargar_mensajes(dato->mensajes)) != RV_SUCCESS)
+		return rv;
 
-	return ST_OK;
+	/* insertar el dato al fin de la lista de usuario ----------*/
+	if((rv = LISTA_insertar_al_final(&(tda->l), dato)) != RV_SUCCESS)
+		return rv;
+
+	return RV_SUCCESS;
 }
+
 
 
 
@@ -99,7 +97,7 @@ int convert_renglon_id(char* renglon)
 	int i;
 	char* renglon2;
 
-	renglon2 = supp_header(renglon,0);
+	renglon2 = supp_header(renglon);
 	i = atoi(renglon2);
 	free(renglon2);
 
@@ -107,27 +105,26 @@ int convert_renglon_id(char* renglon)
 }
 
 
-
-status_t crear_vector_amigos(char* renglon, usuario* user)
+retval_t crear_vector_amigos(char* renglon, vector_t **amigos)
 {
 	int i = 0, j = 0, a, b;
 	char id[5];
 
-	if (!user)
-		return ST_ERROR_PUNTERO_NULO;
+	if (amigos == NULL || renglon == NULL)
+		return RV_ILLEGAL;
 
-	(user->amigos) = (vector_s*)malloc(sizeof(vector_s));/* no funciona con malloc ^^*/
+	*amigos = (vector_t*)malloc(sizeof(vector_t));/* no funciona con malloc ^^*/
 
-	user->amigos->real = numero_amigos(renglon);
-	user->amigos->alloc = user->amigos->real + 2; /* creamos un vector mas grande para los proximos amigos*/
+	(*amigos)->real = numero_amigos(renglon);
+	(*amigos)->alloc = (*amigos)->real + 2; /* creamos un vector mas grande para los proximos amigos*/
 
-	user->amigos->datos = (int*)calloc(user->amigos->alloc,sizeof(int));
+	(*amigos)->datos = (int*)calloc((*amigos)->alloc,sizeof(int));
 
 	while(renglon[i] != IGUAL)
 		i++;
 	i += 2;
 
-	while(j < user->amigos->real)
+	while(j < (*amigos)->real)
 	{
 		a = 0;
 
@@ -141,11 +138,11 @@ status_t crear_vector_amigos(char* renglon, usuario* user)
 			a++;
 		}
 		i++;
-		(user->amigos->datos)[j] = atoi(id);
+		((*amigos)->datos)[j] = atoi(id);
 		j++;
 	}
 
-	return ST_OK;
+	return RV_SUCCESS;
 }
 
 
@@ -168,65 +165,7 @@ int numero_amigos(char* renglon)
 
 
 
-status_t crear_lista_mensaje(usuario* user, FILE* pf)
-{
-	char renglon[MAX_LENGTH_MENSAJE_LARGO];
-	char** arreglo = NULL;
-	char* renglon2;
-	size_t l;
-	lista_s *actual = user->mensajes;
-	lista_s *antes = user->mensajes;
-	int i;
-
-	while(fgets(renglon, MAX_LENGTH_MENSAJE_LARGO, pf) && *renglon != '\n')
-	{
-		if(user->mensajes == NULL)
-		{
-			actual = (lista_s*)calloc(1, sizeof(lista_s));
-			actual->sig = NULL;
-			user->mensajes = actual;
-		}
-		else
-		{
-			while(actual != NULL)
-			{
-				antes = actual;
-				actual = actual->sig;
-			}
-
-			actual = (lista_s*)calloc(1,sizeof(lista_s));
-			actual->sig = NULL;
-			antes->sig = actual;
-		}
-
-		actual->datos = (mensaje*)malloc(sizeof(mensaje));
-
-		if (split(&arreglo, renglon, ',', &l) != ST_OK)
-			return ST_ERROR_CREAR_LISTA;
-
-		renglon2 = supp_header(arreglo[0],1);
-		actual->datos->num = atoi(renglon2);
-		free(renglon2);
-
-		strncpy(actual->datos->stamp, arreglo[1], MAX_LENGTH_STAMP);
-
-		actual->datos->id = atoi(arreglo[2]);
-
-		for(i = 0; i < strlen(arreglo[3]); i++)
-			if(arreglo[3][i] == '\n')
-				arreglo[3][i] = '\0'; /*para supprimir el enter al fin del mensaje*/
-
-		strncpy(actual->datos->mensaje, arreglo[3], MAX_LENGTH_MENSAJE);
-
-		if (destruir_arreglo_cadenas(&arreglo, l) != ST_OK)
-			return ST_ERROR_CREAR_LISTA;
-	}
-
-	return ST_OK;
-}
-
-
-char* supp_header(char* renglon, int opcion) /*opcion es para el caso donde no '\n' al fin*/
+char* supp_header(char* renglon)
 {
 	int i = 0, j = 0;
 	char* renglon2;
@@ -236,7 +175,7 @@ char* supp_header(char* renglon, int opcion) /*opcion es para el caso donde no '
 	i += 2;
 
 
-	renglon2 = (char*)calloc((strlen(renglon)- i + opcion),sizeof(char));
+	renglon2 = (char*)calloc((strlen(renglon)- i),sizeof(char));
 
 	while((renglon[i] != '\n') && (renglon[i] != '\0'))
 	{
@@ -247,233 +186,80 @@ char* supp_header(char* renglon, int opcion) /*opcion es para el caso donde no '
 
 	renglon2[j] = '\0';
 
-	if (renglon2[j-1] == '!') /*solution of a strange error*/
-		renglon2[j-1] = '\0';
-
 	return renglon2;
 }
 
 
-char* strdup(const char* sc)
+
+retval_t cargar_mensajes(tda_lista *tda)
 {
-	size_t l;
-	char *s;
+	retval_t rv;
 
-	if(sc == NULL)
-		return NULL;
+	if(tda == NULL || tda->pfin == NULL)
+		return RV_ILLEGAL;
 
-	l = strlen(sc) + 1; /*se le suma uno para hacer lugar al '\0'*/
+	while(!feof(tda->pfin) && fgetc(tda->pfin) != '\n')
+	{
 
-	s = (char*)calloc(l,sizeof(char));
+		if((rv = cargar_mensaje(tda)) != RV_SUCCESS)
+			return rv;
+	}
 
-	if(s != NULL)
-		memcpy(s,sc,l);
-
-	return s;
+	return RV_SUCCESS;
 }
 
 
-
-status_t split(char*** arreglo, char* cadena, char delimitador, size_t* l)
+retval_t cargar_mensaje(tda_lista *tda)
 {
-	char** campos = *arreglo;
-	size_t n, i;
-	char *aux, *q, *linea, delim[2];
+	mensaje_t *mensaje;
+	retval_t rv;
+	char num[MAX_LENGTH_NUM];
+	char id[MAX_LENGTH_ID];
+	char stamp[MAX_LENGTH_STAMP];
+	char mensaj[MAX_LENGTH_MENSAJE];
 
-	if(!cadena || !l)
-	{
-		return ST_ERROR_PUNTERO_NULO;
-	}
+	if(tda == NULL || tda->pfin == NULL)
+		return RV_ILLEGAL;
 
-	for(i = 0, n = 1; cadena[i]; i++)
-	{
-		if(cadena[i] == delimitador)
-			n++;
-	}
+	mensaje = (mensaje_t*)malloc(sizeof(mensaje_t));
 
-	if((campos = (char**)calloc(n,sizeof(char*))) == NULL)
-	{
-		*l = 0;
-		return ST_ERROR_NOMEM;
-	}
+	fseek(tda->pfin,9,SEEK_CUR);
+	leer_mensaje(num, tda->pfin, MAX_LENGTH_NUM, COMA);
+	mensaje->num = atoi(num);
 
-	if((linea = strdup(cadena)) == NULL)
-	{
-		free(campos);
-		campos = NULL;
-		*l = 0;
-		return ST_ERROR_NOMEM;
-	}
+	leer_mensaje(stamp, tda->pfin, MAX_LENGTH_STAMP, COMA);
+	strncpy(mensaje->stamp, stamp, MAX_LENGTH_STAMP);
 
-	delim[0] = delimitador;
-	delim[1] = '\0';
+	leer_mensaje(id, tda->pfin, MAX_LENGTH_ID, COMA);
+	mensaje->id = atoi(id);
 
-	for(i = 0, q = linea; (aux = strtok(q, delim)) != NULL; i++, q = NULL)
-	{
-		if((campos[i] = strdup(aux)) == NULL)
-		{
-			if((destruir_arreglo_cadenas(&campos, i)) != ST_OK)
-			{
-				return ST_ERROR_DESTRUIR_ARREGLO;
-			}
-			campos = NULL;
-			*l = 0;
-		}
-	}
-	free(linea);
-	*l = i;
+	leer_mensaje(mensaj, tda->pfin, MAX_LENGTH_MENSAJE, RETURN);
+	strncpy(mensaje->mensaje, mensaj, MAX_LENGTH_MENSAJE);
 
-	*arreglo = campos;
-	return ST_OK;
+	if((rv = LISTA_insertar_al_final(&(tda->l), mensaje)) != RV_SUCCESS)
+		return rv;
+
+	return RV_SUCCESS;
 }
 
 
-
-status_t destruir_arreglo_cadenas(char ***campos, size_t size)
+void leer_mensaje(char* renglon, FILE* pf, size_t n, char delim)
 {
-	size_t i;
+	char letra;
+	int i = 0;
 
-	for(i = 0; i < size; i++)
+	for(i = 0; i < n; i++)
 	{
-		free((*campos)[i]);
-		(*campos)[i] = NULL;
+		renglon[i] = '\0';
 	}
 
-	free(*campos);
-	*campos = NULL;
+	i = 0;
 
-	return ST_OK;
-}
-
-status_t destruir_usuarios(userList** v)
-{
-	userList* actual = *v;
-	userList* next;
-
-	if(!(*v))
-		return ST_ERROR_PUNTERO_NULO;
-
-	while(actual->sig != NULL)
+	while((letra = fgetc(pf)) != EOF && letra != delim)
 	{
-		next = actual->sig;
-		destruir_usuario(&(actual->datos));
-		free(actual);
-		actual = next;
+		renglon[i] = letra;
+		i++;
 	}
+	renglon[i] = '\0';
 
-	destruir_usuario(&(actual->datos));
-	free(actual);
-	*v = NULL;
-
-	return ST_OK;
-}
-
-
-status_t destruir_usuario(usuario** user)
-{
-	if (!user)
-		return ST_ERROR_PUNTERO_NULO;
-
-	free((*user)->usuario);
-	free((*user)->nombre);
-
-	if(destruir_vector_amigos(*user) != ST_OK)
-		return ST_ERROR_DESTRUIR_VECTOR;
-
-	if (destruir_lista_mensaje(*user) != ST_OK)
-		return ST_ERROR_DESTRUIR_LISTA;
-
-	free(*user);
-	*user = NULL;
-
-	return ST_OK;
-}
-
-
-status_t destruir_vector_amigos(usuario* user)
-{
-	if(!(user->amigos->datos))
-		return ST_ERROR_PUNTERO_NULO;
-
-	free(user->amigos->datos);
-
-	free(user->amigos);
-
-	user->amigos = NULL;
-	return ST_OK;
-}
-
-
-status_t destruir_lista_mensaje(usuario* user)
-{
-	lista_s* actual = user->mensajes;
-	lista_s* next;
-
-	if(!(user->mensajes))
-		return ST_ERROR_PUNTERO_NULO;
-
-	while(actual->sig != NULL)
-	{
-		next = actual->sig;
-		free(actual->datos);
-		free(actual);
-		actual = next;
-	}
-
-	free(actual->datos);
-	free(actual);
-
-	user->mensajes = NULL;
-
-	return ST_OK;
-}
-
-
-
-status_t imprimir_usuarios(userList* v, FILE* pf)
-{
-	userList* actual = v;
-
-	if(!v)
-		return ST_ERROR_PUNTERO_NULO;
-
-	while(actual != NULL)
-	{
-		if(imprimir_usuario(actual->datos, pf) != ST_OK)
-		{
-			return ST_ERROR_IMPRIMIR_DATOS;
-		}
-		actual = actual->sig;
-
-		if (actual != NULL) /*para supprimir el \n despues del ultimo usuario*/
-			fprintf(pf, "\n");
-	}
-	return ST_OK;
-}
-
-
-status_t imprimir_usuario(usuario* user, FILE* pf)
-{
-	lista_s* actual = user->mensajes;
-	int i;
-
-	fprintf(pf, "[%s]\n", user->usuario);
-	fprintf(pf, "id = %i\n", user->id);
-	fprintf(pf, "nombre = %s\n", user->nombre);
-
-	fprintf(pf, "amigos = ");
-	for(i = 0; i < user->amigos->real - 1; i++)
-		fprintf(pf, "%i,", user->amigos->datos[i]);
-	fprintf(pf, "%i\n", user->amigos->datos[i]);
-
-	while(actual != NULL)
-	{
-		fprintf(pf, "mensaje = %i,", actual->datos->num);
-		fprintf(pf, "%s,", actual->datos->stamp);
-		fprintf(pf, "%i,", actual->datos->id);
-		fprintf(pf, "%s\n", actual->datos->mensaje);
-		actual = actual->sig;
-	}
-
-	return ST_OK;
 }

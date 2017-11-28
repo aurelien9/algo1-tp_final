@@ -2,9 +2,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "struct.h"
 #include "tipos.h"
+#include "struct.h"
 #include "funciones.h"
+#include "LISTA.h"
 
 
 
@@ -12,24 +13,31 @@
 int main(int argc, char* argv[])
 {
 
-	userList *v = NULL;
 	FILE *pf;
 	FILE *pout = stdout;
+	tda_lista tda;
 
 	pf = fopen(argv[1], "r"); /*SOLO PARA PROBAR*/
 	/* aca debemos validar los argumentos de la funcion main*/
 
-	if(cargar_usuarios(&v,pf) != ST_OK)
+	tda.l = NULL;
+	tda.destructor = LISTA_destruir_usuario;
+	tda.pfin = pf;
+	tda.pfout = pout;
+	tda.imprimir = LISTA_imprimir_usuario;
+
+
+	if(cargar_usuarios(&tda) != RV_SUCCESS)
 	{
 		return EXIT_FAILURE;
 	}
 
-	if(imprimir_usuarios(v,pout) != ST_OK)
+	if(LISTA_recorrer(&tda) != RV_SUCCESS)
 	{
 		return EXIT_FAILURE;
 	}
 
-	if(destruir_usuarios(&v) != ST_OK)
+	if(LISTA_destruir(&tda) != RV_SUCCESS)
 	{
 		return EXIT_FAILURE;
 	}
