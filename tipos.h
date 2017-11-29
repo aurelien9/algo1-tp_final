@@ -21,7 +21,7 @@
 #define COMA ','
 #define RETURN '\n'
 
-
+ 
 typedef enum {
 	RV_SUCCESS,
 	RV_ILLEGAL,
@@ -32,5 +32,11 @@ typedef enum {
 	RV_ERROR_OPEN_ARCHIVO,
 	RV_ERROR_DESTRUIR_LISTA
 }retval_t;
+
+typedef enum {
+	SIMPLE,
+	MULTI,
+	NONE
+}output_t;
 
 #endif

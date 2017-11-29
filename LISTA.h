@@ -21,7 +21,9 @@ retval_t LISTA_destruir_usuario(void **usuarioBis);
 
 void LISTA_imprimir_mensaje(lista_t pl, FILE* pfout);
 
-void LISTA_imprimir_usuario(lista_t pl, FILE* pfout);
+void LISTA_imprimir_usuario_simple(lista_t pl, FILE* pfout);
+
+void LISTA_imprimir_usuario_multi(lista_t pl, FILE* pfout);
 
 retval_t LISTA_eliminar(lista_t *pl);
 

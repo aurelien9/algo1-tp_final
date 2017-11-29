@@ -178,7 +178,7 @@ void LISTA_imprimir_mensaje(lista_t pl, FILE* pfout)
 }
 
 
-void LISTA_imprimir_usuario(lista_t pl, FILE* pfout)
+void LISTA_imprimir_usuario_simple(lista_t pl, FILE* pfout)
 {
 	int i, j;
 	usuario_t* usuario = (usuario_t*)(pl->dato);
@@ -199,11 +199,41 @@ void LISTA_imprimir_usuario(lista_t pl, FILE* pfout)
 		printf("\n");
 }
 
+void LISTA_imprimir_usuario_multi(lista_t pl, FILE* pfout)
+{
+	int i, j;
+	usuario_t* usuario = (usuario_t*)(pl->dato);
+	char *archivo;
 
+	archivo = (char*)malloc(MAX_LENGTH_ID + 1 + strlen(usuario->usuario));
+
+	sprintf(archivo, "%i", usuario->id);
+	archivo = strcat(archivo, "-");
+	archivo = strcat(archivo, usuario->usuario);
+
+	pfout = fopen(archivo, "w");
+
+	fprintf(stdout, "Se crea un nueva archivo : %s\n", archivo);
+	fprintf(pfout, "[%s]\n", usuario->usuario);
+	fprintf(pfout, "id = %i\n", usuario->id);
+	fprintf(pfout, "nombre = %s\n", usuario->nombre);
+
+
+	fprintf(pfout, "amigos = ");
+	for(i = 0, j = usuario->amigos->real - 1; i < j; i++)
+		fprintf(pfout, "%i,", usuario->amigos->datos[i]);
+	fprintf(pfout, "%i\n", usuario->amigos->datos[i]);
+
+	LISTA_recorrer(usuario->mensajes, LISTA_imprimir_mensaje, pfout);
+
+	fclose(pfout);
+	free(archivo);
+}
 
 /* Gestion de eliminar */
 
 retval_t LISTA_eliminar(lista_t *pl)
 {
+
 	return RV_SUCCESS;
 }

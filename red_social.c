@@ -18,7 +18,7 @@ int main(int argc, char* argv[])
 	lista_t pl = NULL;
 	unsigned char eliminar = 0;
 	retval_t rv;
-
+	output_t output = MULTI;
 
 	pfin = fopen(argv[1], "r"); /*SOLO PARA PROBAR*/
 	/* aca debemos validar los argumentos de la funcion main*/
@@ -35,14 +35,21 @@ int main(int argc, char* argv[])
 		if ((rv = LISTA_eliminar(&pl)) != RV_SUCCESS)
 		{
 			imprimir_estado(rv);
-			return EXIT_FAILURE;
 		}
 	}
 
-	if((rv = LISTA_recorrer(pl, LISTA_imprimir_usuario, pfout)) != RV_SUCCESS)
+	if(output == SIMPLE)
+		if((rv = LISTA_recorrer(pl, LISTA_imprimir_usuario_simple, pfout)) != RV_SUCCESS)
+		{
+			imprimir_estado(rv);
+		}
+
+	if(output == MULTI)
 	{
-		imprimir_estado(rv);
-		return EXIT_FAILURE;
+		if((rv = LISTA_recorrer(pl, LISTA_imprimir_usuario_multi, pfout)) != RV_SUCCESS)
+		{
+			imprimir_estado(rv);
+		}
 	}
 
 	if((rv = LISTA_destruir(&pl, LISTA_destruir_usuario)) != RV_SUCCESS)

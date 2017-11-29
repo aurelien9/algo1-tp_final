@@ -15,16 +15,6 @@ typedef struct nodo_t
 }nodo_t, *lista_t;
 
 
-/*typedef struct tda_lista
-   {
-        nodo_t *l;
-        retval_t (*destructor)(void**);
-        retval_t (*imprimir)(struct tda_lista**);
-        FILE* pfin;
-        FILE* pfout;
-   }tda_lista;*/
-
-
 typedef struct
 {
 	int num;
