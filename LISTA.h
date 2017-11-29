@@ -25,6 +25,14 @@ void LISTA_imprimir_usuario_simple(lista_t pl, FILE* pfout);
 
 void LISTA_imprimir_usuario_multi(lista_t pl, FILE* pfout);
 
-retval_t LISTA_eliminar(lista_t *pl);
+retval_t LISTA_gestion_eliminar(lista_t *pl, char* v);
+
+retval_t LISTA_eliminar(lista_t *pl, lista_t *peliminar);
+
+retval_t LISTA_buscar(lista_t pl, void *t, retval_t (*cmp)(usuario_t*,void*), lista_t *result);
+
+retval_t LISTA_cmp_id(usuario_t* usuario, void *t);
+
+retval_t LISTA_cmp_usuario(usuario_t* usuario, void *t);
 
 #endif

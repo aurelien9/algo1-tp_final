@@ -11,6 +11,9 @@
 #define TXT_ERROR_DESTRUIR_LISTA "No se pudo eliminar la lista"
 #define TXT_ERROR_IMPRIMIR "No se pueden mostrar los datos"
 #define TXT_ERROR_ESTADO "El estado no pudo ser leido"
+#define TXT_ERROR_ARG_ELIMINAR "El argumento del usuario no se puede leer. Debe ser de la forma i:id o u:usuario"
+#define TXT_USER_NO_EXIST "El usuario que quiere eliminar no exista"
+#define TXT_ERROR_ELIMINAR "Imposible de eliminar el usuario"
 
 #define MAX_LENGTH_ID 5
 #define MAX_LENGTH 50
@@ -21,7 +24,7 @@
 #define COMA ','
 #define RETURN '\n'
 
- 
+
 typedef enum {
 	RV_SUCCESS,
 	RV_ILLEGAL,
@@ -30,7 +33,11 @@ typedef enum {
 	RV_ERROR_DESTRUIR_MENSAJES,
 	RV_ERROR_CANT_ARGC,
 	RV_ERROR_OPEN_ARCHIVO,
-	RV_ERROR_DESTRUIR_LISTA
+	RV_ERROR_DESTRUIR_LISTA,
+	RV_ERROR_ARG_ELIMNAR,
+	RV_USER_NO_EXIST,
+	RV_FALSE,
+	RV_ERROR_ELIMNAR
 }retval_t;
 
 typedef enum {

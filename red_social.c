@@ -18,8 +18,8 @@ int main(int argc, char* argv[])
 	lista_t pl = NULL;
 	unsigned char eliminar = 0;
 	retval_t rv;
-	output_t output = MULTI;
-
+	char* id;
+	output_t output = SIMPLE;
 	pfin = fopen(argv[1], "r"); /*SOLO PARA PROBAR*/
 	/* aca debemos validar los argumentos de la funcion main*/
 
@@ -32,10 +32,13 @@ int main(int argc, char* argv[])
 
 	if(eliminar)
 	{
-		if ((rv = LISTA_eliminar(&pl)) != RV_SUCCESS)
+		id = (char*)malloc(5);
+		strcpy(id,"u:aurelien");
+		if ((rv = LISTA_gestion_eliminar(&pl, id)) != RV_SUCCESS)
 		{
 			imprimir_estado(rv);
 		}
+		free(id);
 	}
 
 	if(output == SIMPLE)

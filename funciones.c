@@ -193,7 +193,7 @@ retval_t cargar_mensajes(lista_t *pl, FILE* pfin)
 	if(pl == NULL || pfin == NULL)
 		return RV_ILLEGAL;
 
-	while(!feof(pfin) && fgetc(pfin) != '\n')
+	while(!feof(pfin) && fgetc(pfin) != '\n' && !feof(pfin))
 	{
 
 		if((rv = cargar_mensaje(pl, pfin)) != RV_SUCCESS)
@@ -281,42 +281,57 @@ void imprimir_estado(retval_t rv)
 	{
 	case RV_SUCCESS:
 	{
-		fprintf(stderr, "%s:%s\n", ERR_PREFIJO, TXT_SUCCESS);
+		fprintf(stderr, "%s: %s\n", ERR_PREFIJO, TXT_SUCCESS);
 		break;
 	}
 	case RV_ILLEGAL:
 	{
-		fprintf(stderr, "%s:%s\n", ERR_PREFIJO, TXT_ILLEGAL);
+		fprintf(stderr, "%s: %s\n", ERR_PREFIJO, TXT_ILLEGAL);
 		break;
 	}
 	case RV_ENOMEM:
 	{
-		fprintf(stderr, "%s:%s\n", ERR_PREFIJO, TXT_ENOMEM);
+		fprintf(stderr, "%s: %s\n", ERR_PREFIJO, TXT_ENOMEM);
 		break;
 	}
 	case RV_ERROR_CANT_ARGC:
 	{
-		fprintf(stderr, "%s:%s\n", ERR_PREFIJO, TXT_ERROR_CANT_ARGC);
+		fprintf(stderr, "%s: %s\n", ERR_PREFIJO, TXT_ERROR_CANT_ARGC);
 		break;
 	}
 	case RV_ERROR_OPEN_ARCHIVO:
 	{
-		fprintf(stderr, "%s:%s\n", ERR_PREFIJO, TXT_ERROR_OPEN_ARCHIVO);
+		fprintf(stderr, "%s: %s\n", ERR_PREFIJO, TXT_ERROR_OPEN_ARCHIVO);
 		break;
 	}
 	case RV_ERROR_DESTRUIR_LISTA:
 	{
-		fprintf(stderr, "%s:%s\n", ERR_PREFIJO, TXT_ERROR_DESTRUIR_LISTA);
+		fprintf(stderr, "%s: %s\n", ERR_PREFIJO, TXT_ERROR_DESTRUIR_LISTA);
 		break;
 	}
 	case RV_ERROR_IMPRIMIR:
 	{
-		fprintf(stderr, "%s:%s\n", ERR_PREFIJO, TXT_ERROR_IMPRIMIR);
+		fprintf(stderr, "%s: %s\n", ERR_PREFIJO, TXT_ERROR_IMPRIMIR);
+		break;
+	}
+	case RV_ERROR_ARG_ELIMNAR:
+	{
+		fprintf(stderr, "%s: %s\n", ERR_PREFIJO, TXT_ERROR_ARG_ELIMINAR);
+		break;
+	}
+	case RV_USER_NO_EXIST:
+	{
+		fprintf(stderr, "%s: %s\n", ERR_PREFIJO, TXT_USER_NO_EXIST);
+		break;
+	}
+	case RV_ERROR_ELIMNAR:
+	{
+		fprintf(stderr, "%s: %s\n", ERR_PREFIJO, TXT_ERROR_ELIMINAR);
 		break;
 	}
 	default:
 	{
-		fprintf(stderr, "%s:%s\n", ERR_PREFIJO, TXT_ERROR_ESTADO);
+		fprintf(stderr, "%s: %s\n", ERR_PREFIJO, TXT_ERROR_ESTADO);
 	}
 	}
 }
