@@ -13,36 +13,45 @@
 int main(int argc, char* argv[])
 {
 
-	FILE *pf;
-	FILE *pout = stdout;
-	tda_lista tda;
+	FILE *pfin;
+	FILE *pfout = stdout;
+	lista_t pl = NULL;
+	unsigned char eliminar = 0;
+	retval_t rv;
 
-	pf = fopen(argv[1], "r"); /*SOLO PARA PROBAR*/
+
+	pfin = fopen(argv[1], "r"); /*SOLO PARA PROBAR*/
 	/* aca debemos validar los argumentos de la funcion main*/
 
-	tda.l = NULL;
-	tda.destructor = LISTA_destruir_usuario;
-	tda.pfin = pf;
-	tda.pfout = pout;
-	tda.imprimir = LISTA_imprimir_usuario;
 
-
-	if(cargar_usuarios(&tda) != RV_SUCCESS)
+	if((rv = cargar_usuarios(&pl, pfin)) != RV_SUCCESS)
 	{
+		imprimir_estado(rv);
 		return EXIT_FAILURE;
 	}
 
-	if(LISTA_recorrer(&tda) != RV_SUCCESS)
+	if(eliminar)
 	{
+		if ((rv = LISTA_eliminar(&pl)) != RV_SUCCESS)
+		{
+			imprimir_estado(rv);
+			return EXIT_FAILURE;
+		}
+	}
+
+	if((rv = LISTA_recorrer(pl, LISTA_imprimir_usuario, pfout)) != RV_SUCCESS)
+	{
+		imprimir_estado(rv);
 		return EXIT_FAILURE;
 	}
 
-	if(LISTA_destruir(&tda) != RV_SUCCESS)
+	if((rv = LISTA_destruir(&pl, LISTA_destruir_usuario)) != RV_SUCCESS)
 	{
+		imprimir_estado(rv);
 		return EXIT_FAILURE;
 	}
 
-	fclose(pf);
+	fclose(pfin);
 
 	return EXIT_SUCCESS;
 }

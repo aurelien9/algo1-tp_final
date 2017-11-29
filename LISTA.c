@@ -8,6 +8,8 @@
 #include "LISTA.h"
 
 
+/* Operationnes sobre las listas */
+
 int LISTA_vacia(lista_t l)
 {
 	return l == NULL;
@@ -27,43 +29,44 @@ retval_t LISTA_crear_nodo(nodo_t **nodo, void *dato)
 }
 
 
-retval_t LISTA_destruir_nodo(tda_lista *tda)
+retval_t LISTA_destruir_nodo(lista_t *pl, retval_t (*destructor)(void**))
 {
 	retval_t rv;
 
-	if(tda == NULL)
+	if(pl == NULL)
 		return RV_ILLEGAL;
-	if(tda->l == NULL)
+	if(*pl == NULL)
 		return RV_SUCCESS;
-	if(tda->destructor == NULL)
+	if(destructor == NULL)
 		return RV_ILLEGAL;
 
-	if((rv = tda->destructor(&(tda->l->dato))) != RV_SUCCESS)
+	if((rv = destructor(&((*pl)->dato))) != RV_SUCCESS)
 		return rv;
 
-	tda->l->sig = NULL;
-
-	free(tda->l);
-	tda->l = NULL;
+	(*pl)->sig = NULL;
+	(*pl)->dato = NULL;
+	free(*pl);
+	*pl = NULL;
 
 	return RV_SUCCESS;
 }
 
-retval_t LISTA_destruir(tda_lista *tda)
+retval_t LISTA_destruir(lista_t *pl, retval_t (*destructor)(void**))
 {
-	tda_lista *sig = tda;
+	nodo_t *sig;
 
-	if(tda == NULL)
+	if(pl == NULL)
 		return RV_ILLEGAL;
 
-	if(LISTA_vacia(tda->l))
+	if(LISTA_vacia(*pl))
 		return RV_SUCCESS;
 
-	sig->l = tda->l->sig;
+	sig = (*pl)->sig;
 
-	LISTA_destruir_nodo(tda);
+	if(LISTA_destruir_nodo(pl, destructor) != RV_SUCCESS)
+		return RV_ERROR_DESTRUIR_LISTA;
 
-	return LISTA_destruir(sig);
+	return LISTA_destruir(&sig, destructor);
 }
 
 
@@ -96,19 +99,21 @@ retval_t LISTA_insertar_al_final(lista_t *pl, void *dato)
 }
 
 
-retval_t LISTA_recorrer(tda_lista *tda)
+retval_t LISTA_recorrer(lista_t pl, void (*imprimir)(lista_t, FILE*), FILE* pfout)
 {
-	tda_lista *sig = tda;
+	lista_t sig = pl;
 
-	if(tda == NULL || tda->imprimir == NULL)
+	if(imprimir == NULL)
 		return RV_ILLEGAL;
 
-	if(tda->l == NULL)
+	if(LISTA_vacia(pl))
 		return RV_SUCCESS;
 
-	tda->imprimir(tda);
-	sig->l = sig->l->sig;
-	return LISTA_recorrer(sig);
+	imprimir(pl, pfout);
+
+	sig = sig->sig;
+
+	return LISTA_recorrer(sig, imprimir, pfout);
 }
 
 
@@ -135,6 +140,7 @@ retval_t LISTA_destruir_usuario(void **usuarioBis)
 		return RV_ILLEGAL;
 
 	free((*usuario)->usuario);
+
 	(*usuario)->usuario = NULL;
 
 	free((*usuario)->nombre);
@@ -146,12 +152,10 @@ retval_t LISTA_destruir_usuario(void **usuarioBis)
 	free((*usuario)->amigos);
 	(*usuario)->amigos = NULL;
 
-	if((rv = LISTA_destruir((*usuario)->mensajes)) != RV_SUCCESS)
+	if((rv = LISTA_destruir(&((*usuario)->mensajes), LISTA_destruir_mensaje)) != RV_SUCCESS)
 	{
 		return RV_ERROR_DESTRUIR_MENSAJES;
 	}
-	free((*usuario)->mensajes);
-	(*usuario)->mensajes = NULL;
 
 	free(*usuario);
 	*usuario = NULL;
@@ -160,47 +164,46 @@ retval_t LISTA_destruir_usuario(void **usuarioBis)
 }
 
 
-retval_t LISTA_imprimir_mensaje(tda_lista *tda)
+
+/* gestion de imprimir */
+
+void LISTA_imprimir_mensaje(lista_t pl, FILE* pfout)
 {
-	mensaje_t *mensaje;
+	mensaje_t* mensaje = (mensaje_t*)(pl->dato);
 
-	if(tda == NULL)
-		return RV_ILLEGAL;
-
-	mensaje = (mensaje_t*)(tda->l->dato);
-	fprintf(tda->pfout, "mensaje = %i,", mensaje->num);
-	fprintf(tda->pfout, "%s,", mensaje->stamp);
-	fprintf(tda->pfout, "%i,", mensaje->id);
-	fprintf(tda->pfout, "%s\n", mensaje->mensaje);
-	return RV_SUCCESS;
+	fprintf(pfout, "mensaje = %i,", mensaje->num);
+	fprintf(pfout, "%s,", mensaje->stamp);
+	fprintf(pfout, "%i,", mensaje->id);
+	fprintf(pfout, "%s\n", mensaje->mensaje);
 }
 
 
-retval_t LISTA_imprimir_usuario(tda_lista *tda)
+void LISTA_imprimir_usuario(lista_t pl, FILE* pfout)
 {
 	int i, j;
-	usuario_t *usuario;
+	usuario_t* usuario = (usuario_t*)(pl->dato);
 
-	if(tda == NULL)
-		return RV_ILLEGAL;
-
-	usuario = (usuario_t*)(tda->l->dato);
-
-	fprintf(tda->pfout, "[%s]\n", usuario->usuario);
-	fprintf(tda->pfout, "id = %i\n", usuario->id);
-	fprintf(tda->pfout, "nombre = %s\n", usuario->nombre);
+	fprintf(pfout, "[%s]\n", usuario->usuario);
+	fprintf(pfout, "id = %i\n", usuario->id);
+	fprintf(pfout, "nombre = %s\n", usuario->nombre);
 
 
-	fprintf(tda->pfout, "amigos = ");
+	fprintf(pfout, "amigos = ");
 	for(i = 0, j = usuario->amigos->real - 1; i < j; i++)
-		fprintf(tda->pfout, "%i,", usuario->amigos->datos[i]);
-	fprintf(tda->pfout, "%i\n", usuario->amigos->datos[i]);
+		fprintf(pfout, "%i,", usuario->amigos->datos[i]);
+	fprintf(pfout, "%i\n", usuario->amigos->datos[i]);
 
-	if(LISTA_recorrer(usuario->mensajes) != RV_SUCCESS)
-		return RV_ERROR_IMPRIMIR;
+	LISTA_recorrer(usuario->mensajes, LISTA_imprimir_mensaje, pfout);
 
-	if(tda->l->sig != NULL)
+	if(pl->sig != NULL)
 		printf("\n");
+}
 
+
+
+/* Gestion de eliminar */
+
+retval_t LISTA_eliminar(lista_t *pl)
+{
 	return RV_SUCCESS;
 }

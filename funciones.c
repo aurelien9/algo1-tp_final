@@ -9,19 +9,19 @@
 
 
 
-retval_t cargar_usuarios(tda_lista *tda)
+retval_t cargar_usuarios(lista_t *pl, FILE* pfin)
 {
 	char renglon[MAX_LENGTH] = "";
 	retval_t rv;
 
-	if(tda == NULL || tda->pfin == NULL)
+	if(pl == NULL || pfin == NULL)
 		return RV_ILLEGAL;
 
-	while(fgets(renglon, MAX_LENGTH, tda->pfin) != NULL)
+	while(fgets(renglon, MAX_LENGTH, pfin) != NULL)
 	{
 		if(renglon[0] == CROCHETE_1)
 		{
-			if((rv = cargar_usuario(tda, renglon)) != RV_SUCCESS)
+			if((rv = cargar_usuario(pl, renglon, pfin)) != RV_SUCCESS)
 				return rv;
 		}
 	}
@@ -30,12 +30,12 @@ retval_t cargar_usuarios(tda_lista *tda)
 
 
 
-retval_t cargar_usuario(tda_lista *tda, char* renglon)
+retval_t cargar_usuario(lista_t *pl, char* renglon, FILE* pfin)
 {
 	retval_t rv;
 	usuario_t *dato;
 
-	if(tda == NULL || renglon == NULL || tda->pfin == NULL)
+	if(pl == NULL || renglon == NULL || pfin == NULL)
 		return RV_ILLEGAL;
 
 
@@ -44,28 +44,23 @@ retval_t cargar_usuario(tda_lista *tda, char* renglon)
 
 	dato->usuario = convert_renglon_usuario(renglon);
 
-	fgets(renglon, MAX_LENGTH, tda->pfin);
+	fgets(renglon, MAX_LENGTH, pfin);
 	dato->id = convert_renglon_id(renglon);
 
-	fgets(renglon, MAX_LENGTH, tda->pfin);
+	fgets(renglon, MAX_LENGTH, pfin);
 	dato->nombre = supp_header(renglon);
 
-	fgets(renglon, MAX_LENGTH, tda->pfin);
+	fgets(renglon, MAX_LENGTH, pfin);
 	if ((rv = crear_vector_amigos(renglon, &(dato->amigos))) != RV_SUCCESS)
 		return rv;
 
-	dato->mensajes = (tda_lista*)malloc(sizeof(tda_lista));
-	dato->mensajes->l = NULL;
-	dato->mensajes->destructor = LISTA_destruir_mensaje;
-	dato->mensajes->pfin = tda->pfin;
-	dato->mensajes->pfout = tda->pfout;
-	dato->mensajes->imprimir = LISTA_imprimir_mensaje;
+	dato->mensajes = NULL;
 
-	if ((rv = cargar_mensajes(dato->mensajes)) != RV_SUCCESS)
+	if ((rv = cargar_mensajes(&(dato->mensajes), pfin)) != RV_SUCCESS)
 		return rv;
 
 	/* insertar el dato al fin de la lista de usuario ----------*/
-	if((rv = LISTA_insertar_al_final(&(tda->l), dato)) != RV_SUCCESS)
+	if((rv = LISTA_insertar_al_final(pl, dato)) != RV_SUCCESS)
 		return rv;
 
 	return RV_SUCCESS;
@@ -191,17 +186,17 @@ char* supp_header(char* renglon)
 
 
 
-retval_t cargar_mensajes(tda_lista *tda)
+retval_t cargar_mensajes(lista_t *pl, FILE* pfin)
 {
 	retval_t rv;
 
-	if(tda == NULL || tda->pfin == NULL)
+	if(pl == NULL || pfin == NULL)
 		return RV_ILLEGAL;
 
-	while(!feof(tda->pfin) && fgetc(tda->pfin) != '\n')
+	while(!feof(pfin) && fgetc(pfin) != '\n')
 	{
 
-		if((rv = cargar_mensaje(tda)) != RV_SUCCESS)
+		if((rv = cargar_mensaje(pl, pfin)) != RV_SUCCESS)
 			return rv;
 	}
 
@@ -209,7 +204,7 @@ retval_t cargar_mensajes(tda_lista *tda)
 }
 
 
-retval_t cargar_mensaje(tda_lista *tda)
+retval_t cargar_mensaje(lista_t *pl, FILE* pfin)
 {
 	mensaje_t *mensaje;
 	retval_t rv;
@@ -218,32 +213,32 @@ retval_t cargar_mensaje(tda_lista *tda)
 	char stamp[MAX_LENGTH_STAMP];
 	char mensaj[MAX_LENGTH_MENSAJE];
 
-	if(tda == NULL || tda->pfin == NULL)
+	if(pl == NULL || pfin == NULL)
 		return RV_ILLEGAL;
 
 	mensaje = (mensaje_t*)malloc(sizeof(mensaje_t));
 
-	fseek(tda->pfin,9,SEEK_CUR);
-	leer_mensaje(num, tda->pfin, MAX_LENGTH_NUM, COMA);
+	fseek(pfin,9,SEEK_CUR);
+	leer_mensaje(num, pfin, MAX_LENGTH_NUM, COMA);
 	mensaje->num = atoi(num);
 
-	leer_mensaje(stamp, tda->pfin, MAX_LENGTH_STAMP, COMA);
+	leer_mensaje(stamp, pfin, MAX_LENGTH_STAMP, COMA);
 	strncpy(mensaje->stamp, stamp, MAX_LENGTH_STAMP);
 
-	leer_mensaje(id, tda->pfin, MAX_LENGTH_ID, COMA);
+	leer_mensaje(id, pfin, MAX_LENGTH_ID, COMA);
 	mensaje->id = atoi(id);
 
-	leer_mensaje(mensaj, tda->pfin, MAX_LENGTH_MENSAJE, RETURN);
+	leer_mensaje(mensaj, pfin, MAX_LENGTH_MENSAJE, RETURN);
 	strncpy(mensaje->mensaje, mensaj, MAX_LENGTH_MENSAJE);
 
-	if((rv = LISTA_insertar_al_final(&(tda->l), mensaje)) != RV_SUCCESS)
+	if((rv = LISTA_insertar_al_final(pl, mensaje)) != RV_SUCCESS)
 		return rv;
 
 	return RV_SUCCESS;
 }
 
 
-void leer_mensaje(char* renglon, FILE* pf, size_t n, char delim)
+void leer_mensaje(char* renglon, FILE* pfin, size_t n, char delim)
 {
 	char letra;
 	int i = 0;
@@ -255,11 +250,73 @@ void leer_mensaje(char* renglon, FILE* pf, size_t n, char delim)
 
 	i = 0;
 
-	while((letra = fgetc(pf)) != EOF && letra != delim)
+	while((letra = fgetc(pfin)) != EOF && letra != delim)
 	{
 		renglon[i] = letra;
 		i++;
 	}
 	renglon[i] = '\0';
+}
 
+
+
+/*///////////////////////////////FUNCIONES DE PROTECCION/////////////////////////////////*/
+retval_t validar_argumentos(int argc, char* argv[],FILE *file)
+{
+	if(!(argv) || !(file))
+	{
+		return RV_ILLEGAL;
+	}
+	if(argc < 2)
+	{
+		return RV_ERROR_CANT_ARGC;
+	}
+	return RV_SUCCESS;
+}
+
+
+void imprimir_estado(retval_t rv)
+{
+	switch(rv)
+	{
+	case RV_SUCCESS:
+	{
+		fprintf(stderr, "%s:%s\n", ERR_PREFIJO, TXT_SUCCESS);
+		break;
+	}
+	case RV_ILLEGAL:
+	{
+		fprintf(stderr, "%s:%s\n", ERR_PREFIJO, TXT_ILLEGAL);
+		break;
+	}
+	case RV_ENOMEM:
+	{
+		fprintf(stderr, "%s:%s\n", ERR_PREFIJO, TXT_ENOMEM);
+		break;
+	}
+	case RV_ERROR_CANT_ARGC:
+	{
+		fprintf(stderr, "%s:%s\n", ERR_PREFIJO, TXT_ERROR_CANT_ARGC);
+		break;
+	}
+	case RV_ERROR_OPEN_ARCHIVO:
+	{
+		fprintf(stderr, "%s:%s\n", ERR_PREFIJO, TXT_ERROR_OPEN_ARCHIVO);
+		break;
+	}
+	case RV_ERROR_DESTRUIR_LISTA:
+	{
+		fprintf(stderr, "%s:%s\n", ERR_PREFIJO, TXT_ERROR_DESTRUIR_LISTA);
+		break;
+	}
+	case RV_ERROR_IMPRIMIR:
+	{
+		fprintf(stderr, "%s:%s\n", ERR_PREFIJO, TXT_ERROR_IMPRIMIR);
+		break;
+	}
+	default:
+	{
+		fprintf(stderr, "%s:%s\n", ERR_PREFIJO, TXT_ERROR_ESTADO);
+	}
+	}
 }
