@@ -363,6 +363,11 @@ void imprimir_estado(retval_t rv)
 		fprintf(stderr, "%s: %s\n", ERR_PREFIJO, TXT_ERROR_ELIMINAR);
 		break;
 	}
+	case RV_ERROR_MIN_ARG:
+	{
+		fprintf(stderr, "%s: %s\n", ERR_PREFIJO, TXT_ERROR_MIN_ARG);
+		break;
+	}
 	default:
 	{
 		fprintf(stderr, "%s: %s\n", ERR_PREFIJO, TXT_ERROR_ESTADO);
