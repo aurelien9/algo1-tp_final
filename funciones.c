@@ -64,6 +64,7 @@ retval_t cargar_usuario(lista_t *pl, char* renglon, FILE* pfin)
 {
 	retval_t rv;
 	usuario_t *dato;
+	lista_t l = NULL;
 
 	if(pl == NULL || renglon == NULL || pfin == NULL)
 		return RV_ILLEGAL;
@@ -88,6 +89,22 @@ retval_t cargar_usuario(lista_t *pl, char* renglon, FILE* pfin)
 
 	if ((rv = cargar_mensajes(&(dato->mensajes), pfin)) != RV_SUCCESS)
 		return rv;
+
+	/* verificamos si este id no existe y */
+	if(LISTA_buscar(*pl, &(dato->id), LISTA_cmp_id, &l) != RV_USER_NO_EXIST)
+	{
+		imprimir_estado(RV_ID_YA_EXISTA);
+		free(dato);
+		return RV_SUCCESS;
+	}
+
+	/* verificamos si el ID no es negativo */
+	if(dato->id < 0)
+	{
+		imprimir_estado(RV_ERROR_ID_NEGATIVO);
+		free(dato);
+		return RV_SUCCESS;
+	}
 
 	/* insertar el dato al fin de la lista de usuario ----------*/
 	if((rv = LISTA_insertar_al_final(pl, dato)) != RV_SUCCESS)
@@ -373,7 +390,7 @@ void imprimir_estado(retval_t rv)
 	{
 	case RV_SUCCESS:
 	{
-		fprintf(stderr, "%s: %s\n", ERR_PREFIJO, TXT_SUCCESS);
+		fprintf(stderr, "%s\n", TXT_SUCCESS);
 		break;
 	}
 	case RV_ILLEGAL:
@@ -429,6 +446,16 @@ void imprimir_estado(retval_t rv)
 	case RV_ERROR_FORMATO_ARG:
 	{
 		fprintf(stderr, "%s: %s\n", ERR_PREFIJO, TXT_ERROR_FORMATO_ARG);
+		break;
+	}
+	case RV_ID_YA_EXISTA:
+	{
+		fprintf(stderr, "%s\n", TXT_ID_YA_EXISTA);
+		break;
+	}
+	case RV_ERROR_ID_NEGATIVO:
+	{
+		fprintf(stderr, "%s\n", TXT_ERROR_ID_NEGATIVO);
 		break;
 	}
 	default:

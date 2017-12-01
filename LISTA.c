@@ -287,7 +287,7 @@ retval_t LISTA_eliminar(lista_t *pl, lista_t *peliminar)
 
 retval_t LISTA_buscar(lista_t pl, void *t, retval_t (*cmp)(usuario_t*,void*), lista_t *result)
 {
-	if(cmp == NULL || result == NULL || t == NULL)
+	if(cmp == NULL || t == NULL)
 		return RV_ILLEGAL;
 
 	if(pl == NULL)

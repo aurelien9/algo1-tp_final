@@ -11,6 +11,12 @@ nombre = Cornelio Saavedra
 amigos = 263,15,23
 mensaje = 2069,1811-09-15,2,Hacía falta tanta agua para apagar tanto fueg
 
+[Che]
+id = 2
+nombre = Che guevara
+amigos = 263,15,23,56,67,9,23
+mensaje = 2069,1811-09-15,2,Hacía falta tanta agua para apagar tanto fueg
+
 [aurelien]
 id = 54
 nombre = Aurelien Floutard
@@ -19,7 +25,7 @@ mensaje = 2354190,0000-01-01,54,Hello coucou j'ai hate de vous rencontrer
 mensaje = 5678,9999-99-99,99,Bonjour j'espere que vous allez bien
 
 [flavien]
-id = 3
+id = -3
 nombre = Flavien Guillard
 amigos = 1,33,4,1345
 mensaje = 2354190,0000-01-01,54,Hello coucou j'ai hate de vous rencontrer
