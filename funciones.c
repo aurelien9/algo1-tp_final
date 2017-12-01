@@ -288,7 +288,7 @@ retval_t validar_argumentos(int argc,char* argv[], output_t* output, char** elim
 			}
 			strcpy(*eliminar, argv[i+1]);
 		}
-		if( !(strcmp(argv[i],SHORT_OUT)) || !(strcmp(argv[i],SHORT_OUT)))
+		if( !(strcmp(argv[i],SHORT_OUT)) || !(strcmp(argv[i],LONG_OUT)))
 		{
 			if( !(strcmp(argv[i+1], OUT_SINGLE)))
 			{
