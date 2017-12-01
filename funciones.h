@@ -1,7 +1,9 @@
 #ifndef FUNCIONES_H
 #define FUNCIONES_H
 
-retval_t cargar_usuarios(lista_t *pl, FILE* pfin);
+retval_t cargar_usuarios(lista_t *pl, char** arreglo_pfin, size_t cant_file);
+
+retval_t destruir_arreglo(char*** arreglo, size_t cant);
 
 retval_t cargar_usuario(lista_t *pl, char* renglon, FILE* pfin);
 
@@ -21,7 +23,7 @@ retval_t cargar_mensaje(lista_t *pl, FILE* pfin);
 
 void leer_mensaje(char* renglon, FILE* pfin, size_t n, char delim);
 
-retval_t validar_argumentos(int argc, char* argv[],FILE *file);
+retval_t validar_argumentos(int argc, char* argv[], char*** arreglo_pfin, size_t* cant_file, output_t* output, char** eliminar, unsigned char* peliminar);
 
 void imprimir_estado(retval_t rv);
 

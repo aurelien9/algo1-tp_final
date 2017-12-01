@@ -9,25 +9,56 @@
 
 
 
-retval_t cargar_usuarios(lista_t *pl, FILE* pfin)
+retval_t cargar_usuarios(lista_t *pl, char** arreglo_pfin, size_t cant_file)
 {
 	char renglon[MAX_LENGTH] = "";
 	retval_t rv;
+	int i;
+	FILE* pfin;
 
-	if(pl == NULL || pfin == NULL)
+	if(pl == NULL || arreglo_pfin == NULL)
 		return RV_ILLEGAL;
 
-	while(fgets(renglon, MAX_LENGTH, pfin) != NULL)
+	for(i = 0; i < cant_file; i++)
 	{
-		if(renglon[0] == CROCHETE_1)
+		printf("%s\n", arreglo_pfin[i]);
+		pfin = fopen(arreglo_pfin[i], "r");
+		while(fgets(renglon, MAX_LENGTH, pfin) != NULL)
 		{
-			if((rv = cargar_usuario(pl, renglon, pfin)) != RV_SUCCESS)
-				return rv;
+			if(renglon[0] == CROCHETE_1)
+			{
+				if((rv = cargar_usuario(pl, renglon, pfin)) != RV_SUCCESS)
+					return rv;
+			}
 		}
+		fclose(pfin);
 	}
+
+	if((rv = destruir_arreglo(&arreglo_pfin, cant_file)) != RV_SUCCESS)
+		return rv;
+
 	return RV_SUCCESS;
 }
 
+
+retval_t destruir_arreglo(char*** arreglo, size_t cant)
+{
+	int i;
+
+	if(arreglo == NULL)
+		return RV_ILLEGAL;
+
+	for(i = 0; i < cant; i++)
+	{
+		free((*arreglo)[i]);
+		(*arreglo)[i] = NULL;
+	}
+
+	free(*arreglo);
+	*arreglo = NULL;
+
+	return RV_SUCCESS;
+}
 
 
 retval_t cargar_usuario(lista_t *pl, char* renglon, FILE* pfin)
@@ -126,7 +157,7 @@ retval_t crear_vector_amigos(char* renglon, vector_t **amigos)
 		for(b = 0; b < 5; b++) /*para reinit id[]*/
 			id[b] = '\0';
 
-		while(renglon[i] != COMA && renglon[i] != '\n' && renglon[i] != '\0')
+		while(renglon[i] != COMA && renglon[i] != RETURN && renglon[i] != '\0')
 		{
 			id[a] = renglon[i];
 			i++;
@@ -261,15 +292,65 @@ void leer_mensaje(char* renglon, FILE* pfin, size_t n, char delim)
 
 
 /*///////////////////////////////FUNCIONES DE PROTECCION/////////////////////////////////*/
-retval_t validar_argumentos(int argc, char* argv[],FILE *file)
+retval_t validar_argumentos(int argc, char* argv[], char*** arreglo_pfin, size_t* cant_file, output_t* output, char** eliminar, unsigned char* peliminar)
 {
-	if(!(argv) || !(file))
+	int i, j = 0;
+
+	if(!(argv) || !(output) || !(eliminar) || !(arreglo_pfin) || !(cant_file))
 	{
 		return RV_ILLEGAL;
 	}
-	if(argc < 2)
+
+	if(argc < MIN_ARG)
 	{
-		return RV_ERROR_CANT_ARGC;
+		return RV_ERROR_MIN_ARG;
+	}
+
+	*cant_file = 0;
+	for(i = 1; i < argc; i++)
+	{
+		if(argv[i][0] != GUION)
+			(*cant_file)++;
+		else
+			i++;
+	}
+	*arreglo_pfin = (char**)calloc(*cant_file,sizeof(char*));
+
+	for(i = 1; i < argc; i++)
+	{
+		if( !(strcmp(argv[i], SHORT_ELIM)) || !(strcmp(argv[i], LONG_ELIM)))
+		{
+			*peliminar = 1;
+			if((*eliminar = (char*)calloc(strlen(argv[i + 1]) + 1,sizeof(char))) == NULL)
+				return RV_ENOMEM;
+			strcpy(*eliminar, argv[i+1]);
+			i++;
+		}
+
+		else if( !(strcmp(argv[i], SHORT_OUT)) || !(strcmp(argv[i], LONG_OUT)))
+		{
+			if( !(strcmp(argv[i+1], OUT_SINGLE)))
+			{
+				*output = SIMPLE;
+			}
+			else if( !(strcmp(argv[i+1], OUT_MULT)))
+			{
+				*output = MULTI;
+			}
+			else
+			{
+				*output = NONE;
+			}
+			i++;
+		}
+
+		else
+		{
+			if(((*arreglo_pfin)[j] = (char*)calloc(strlen(argv[i]) + 1,sizeof(char))) == NULL)
+				return RV_ENOMEM;
+			strcpy((*arreglo_pfin)[j], argv[i]);
+			j++;
+		}
 	}
 	return RV_SUCCESS;
 }
@@ -327,6 +408,11 @@ void imprimir_estado(retval_t rv)
 	case RV_ERROR_ELIMNAR:
 	{
 		fprintf(stderr, "%s: %s\n", ERR_PREFIJO, TXT_ERROR_ELIMINAR);
+		break;
+	}
+	case RV_ERROR_MIN_ARG:
+	{
+		fprintf(stderr, "%s: %s\n", ERR_PREFIJO, TXT_ERROR_MIN_ARG);
 		break;
 	}
 	default:

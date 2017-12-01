@@ -266,7 +266,15 @@ retval_t LISTA_gestion_eliminar(lista_t *pl, char* v)
 retval_t LISTA_eliminar(lista_t *pl, lista_t *peliminar)
 {
 
-	if((*pl)->sig == *peliminar || *pl == *peliminar)
+	if(*pl == *peliminar)
+	{
+		(*pl) = (*peliminar)->sig;
+		if(LISTA_destruir_nodo(peliminar, LISTA_destruir_usuario) != RV_SUCCESS)
+			return RV_ERROR_ARG_ELIMNAR;
+		return RV_SUCCESS;
+	}
+
+	if((*pl)->sig == *peliminar)
 	{
 		(*pl)->sig = (*peliminar)->sig;
 		if(LISTA_destruir_nodo(peliminar, LISTA_destruir_usuario) != RV_SUCCESS)

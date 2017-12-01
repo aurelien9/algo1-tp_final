@@ -12,40 +12,46 @@
 
 int main(int argc, char* argv[])
 {
-
-	FILE *pfin;
-	FILE *pfout = stdout;
+	char** arreglo_pfin; /*arreglo que contienne todos las nombres de los archivos de configuracion */
+	FILE* pfout = stdout;
 	lista_t pl = NULL;
-	unsigned char eliminar = 0;
+	unsigned char bool_eliminar = 0;
 	retval_t rv;
-	char* id;
-	output_t output = SIMPLE;
-	pfin = fopen(argv[1], "r"); /*SOLO PARA PROBAR*/
-	/* aca debemos validar los argumentos de la funcion main*/
+	char* eliminar;
+	output_t output = NONE;
+	size_t cant_file;
 
 
-	if((rv = cargar_usuarios(&pl, pfin)) != RV_SUCCESS)
+	if((rv = validar_argumentos(argc, argv, &arreglo_pfin, &cant_file, &output, &eliminar, &bool_eliminar)) != RV_SUCCESS)
 	{
 		imprimir_estado(rv);
 		return EXIT_FAILURE;
 	}
 
-	if(eliminar)
+
+	if((rv = cargar_usuarios(&pl, arreglo_pfin, cant_file)) != RV_SUCCESS)
 	{
-		id = (char*)malloc(5);
-		strcpy(id,"u:aurelien");
-		if ((rv = LISTA_gestion_eliminar(&pl, id)) != RV_SUCCESS)
+		imprimir_estado(rv);
+		return EXIT_FAILURE;
+	}
+
+
+	if(bool_eliminar)
+	{
+		if ((rv = LISTA_gestion_eliminar(&pl, eliminar)) != RV_SUCCESS)
 		{
 			imprimir_estado(rv);
 		}
-		free(id);
+		free(eliminar);
 	}
+
 
 	if(output == SIMPLE)
 		if((rv = LISTA_recorrer(pl, LISTA_imprimir_usuario_simple, pfout)) != RV_SUCCESS)
 		{
 			imprimir_estado(rv);
 		}
+
 
 	if(output == MULTI)
 	{
@@ -60,8 +66,7 @@ int main(int argc, char* argv[])
 		imprimir_estado(rv);
 		return EXIT_FAILURE;
 	}
-
-	fclose(pfin);
+	printf("Z\n");
 
 	return EXIT_SUCCESS;
 }
