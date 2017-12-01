@@ -306,6 +306,7 @@ retval_t validar_argumentos(int argc, char* argv[], char*** arreglo_pfin, size_t
 		return RV_ERROR_MIN_ARG;
 	}
 
+	/* para buscar la cantidad de archivo INI */
 	*cant_file = 0;
 	for(i = 1; i < argc; i++)
 	{
@@ -316,19 +317,30 @@ retval_t validar_argumentos(int argc, char* argv[], char*** arreglo_pfin, size_t
 	}
 	*arreglo_pfin = (char**)calloc(*cant_file,sizeof(char*));
 
+	/* analizamos para cada argumentos */
 	for(i = 1; i < argc; i++)
 	{
 		if( !(strcmp(argv[i], SHORT_ELIM)) || !(strcmp(argv[i], LONG_ELIM)))
 		{
 			*peliminar = 1;
+			if(i + 1 >= argc)
+				return RV_ERROR_CANT_ARGC;
+
+			if((argv[i + 1][0] != (LETTRA_U || LETTRA_I)) || argv[i + 1][1] != DOS_PUNTO)
+				return RV_ERROR_FORMATO_ARG;
+
 			if((*eliminar = (char*)calloc(strlen(argv[i + 1]) + 1,sizeof(char))) == NULL)
 				return RV_ENOMEM;
+
 			strcpy(*eliminar, argv[i+1]);
 			i++;
 		}
 
 		else if( !(strcmp(argv[i], SHORT_OUT)) || !(strcmp(argv[i], LONG_OUT)))
 		{
+			if(i + 1 >= argc)
+				return RV_ERROR_CANT_ARGC;
+
 			if( !(strcmp(argv[i+1], OUT_SINGLE)))
 			{
 				*output = SIMPLE;
@@ -413,6 +425,11 @@ void imprimir_estado(retval_t rv)
 	case RV_ERROR_MIN_ARG:
 	{
 		fprintf(stderr, "%s: %s\n", ERR_PREFIJO, TXT_ERROR_MIN_ARG);
+		break;
+	}
+	case RV_ERROR_FORMATO_ARG:
+	{
+		fprintf(stderr, "%s: %s\n", ERR_PREFIJO, TXT_ERROR_FORMATO_ARG);
 		break;
 	}
 	default:

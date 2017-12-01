@@ -6,7 +6,7 @@
 #define TXT_SUCCESS "Todos los procesos funcionaron correctamente"
 #define TXT_ILLEGAL "Uno de los punteros no se pudo verificar correctamente"
 #define TXT_ENOMEM "No hay suficiente memoria para ejecutar el programa"
-#define TXT_ERROR_CANT_ARGC "El programa se ejecuto sin ningun argumento"
+#define TXT_ERROR_CANT_ARGC "Falta algunos argumentos para ejecutar el programa"
 #define TXT_ERROR_MIN_ARG "El programa para sar ejecutado necesita un minimo de 1 argumentos"
 #define TXT_ERROR_OPEN_ARCHIVO "No se pudo abrir el archivo"
 #define TXT_ERROR_DESTRUIR_LISTA "No se pudo eliminar la lista"
@@ -15,7 +15,7 @@
 #define TXT_ERROR_ARG_ELIMINAR "El argumento del usuario no se puede leer. Debe ser de la forma i:id o u:usuario"
 #define TXT_USER_NO_EXIST "El usuario que quiere eliminar no exista"
 #define TXT_ERROR_ELIMINAR "Imposible de eliminar el usuario"
-
+#define TXT_ERROR_FORMATO_ARG "Los argumentos de eliminar deben ser de la forma u:usuario o i:id"
 #define MIN_ARG 1
 #define CANT_ARG 0
 
@@ -28,6 +28,9 @@
 #define COMA ','
 #define GUION '-'
 #define RETURN '\n'
+#define DOS_PUNTO ':'
+#define LETTRA_I 'i'
+#define LETTRA_U 'u'
 
 #define SHORT_ELIM "-e"
 #define LONG_ELIM "--eliminar"
@@ -50,7 +53,8 @@ typedef enum {
 	RV_ERROR_ARG_ELIMNAR,
 	RV_USER_NO_EXIST,
 	RV_FALSE,
-	RV_ERROR_ELIMNAR
+	RV_ERROR_ELIMNAR,
+	RV_ERROR_FORMATO_ARG
 }retval_t;
 
 typedef enum {
