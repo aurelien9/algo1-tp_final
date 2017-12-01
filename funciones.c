@@ -261,15 +261,49 @@ void leer_mensaje(char* renglon, FILE* pfin, size_t n, char delim)
 
 
 /*///////////////////////////////FUNCIONES DE PROTECCION/////////////////////////////////*/
-retval_t validar_argumentos(int argc, char* argv[],FILE *file)
+retval_t validar_argumentos(int argc,char* argv[], output_t* output, char** eliminar, FILE** ppf, int* peliminar)
 {
-	if(!(argv) || !(file))
+	int i;
+
+	if(!(argv) || !(output) || !(eliminar) || !(ppf))
 	{
 		return RV_ILLEGAL;
 	}
-	if(argc < 2)
+	if(argc<MIN_ARG)
 	{
-		return RV_ERROR_CANT_ARGC;
+	 return RV_ERROR_MIN_ARG;	
+	}
+	if((*ppf = fopen(argv[5], "r")) == NULL ) /* Hardcodeo, tengo que pensar una forma de pensarlo para mas de un archivo*/
+	{
+		return RV_ERROR_OPEN_ARCHIVO;
+	}
+	for(i=0 ; i<argc ; i++)
+	{
+		if( !(strcmp(argv[i],SHORT_ELIM)) || !(strcmp(argv[i],LONG_ELIM)))
+		{
+			*peliminar = 1;
+			if((*eliminar = (char*)malloc(sizeof(char)/*strlen(argv[i+1])*/)) == NULL)
+			{
+				return RV_ENOMEM;
+			}
+			strcpy(*eliminar, argv[i+1]);
+		}
+		if( !(strcmp(argv[i],SHORT_OUT)) || !(strcmp(argv[i],SHORT_OUT)))
+		{
+			if( !(strcmp(argv[i+1], OUT_SINGLE)))
+			{
+				*output = SIMPLE;
+			}
+			else if( !(strcmp(argv[i+1], OUT_MULT)))
+			{
+				*output = MULTI;
+			}
+			else
+			{
+				*output = NONE;
+			}
+		}
+		
 	}
 	return RV_SUCCESS;
 }
