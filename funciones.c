@@ -21,7 +21,6 @@ retval_t cargar_usuarios(lista_t *pl, char** arreglo_pfin, size_t cant_file)
 
 	for(i = 0; i < cant_file; i++)
 	{
-		printf("%s\n", arreglo_pfin[i]);
 		pfin = fopen(arreglo_pfin[i], "r");
 		while(fgets(renglon, MAX_LENGTH, pfin) != NULL)
 		{
@@ -326,7 +325,7 @@ retval_t validar_argumentos(int argc, char* argv[], char*** arreglo_pfin, size_t
 			if(i + 1 >= argc)
 				return RV_ERROR_CANT_ARGC;
 
-			if((argv[i + 1][0] != (LETTRA_U || LETTRA_I)) || argv[i + 1][1] != DOS_PUNTO)
+			if((argv[i + 1][0] != LETTRA_U && argv[i + 1][0] != LETTRA_I) || argv[i + 1][1] != DOS_PUNTO)
 				return RV_ERROR_FORMATO_ARG;
 
 			if((*eliminar = (char*)calloc(strlen(argv[i + 1]) + 1,sizeof(char))) == NULL)
