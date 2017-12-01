@@ -21,7 +21,7 @@ retval_t cargar_mensaje(lista_t *pl, FILE* pfin);
 
 void leer_mensaje(char* renglon, FILE* pfin, size_t n, char delim);
 
-retval_t validar_argumentos(int argc, char* argv[],FILE *file);
+retval_t validar_argumentos(int argc,char* argv[], output_t* output, char** eliminar, FILE** ppf, int* peliminar);
 
 void imprimir_estado(retval_t rv);
 
