@@ -17,7 +17,7 @@
 #define TXT_ERROR_ELIMINAR "Imposible de eliminar el usuario"
 #define TXT_ERROR_FORMATO_ARG "Los argumentos de eliminar deben ser de la forma u:usuario o i:id"
 #define TXT_ID_YA_EXISTA "No podemos cargar el usuario porque su ID ya exista"
-#define TXT_ERROR_ID_NEGATIVO "No podemo cargar el usuario porque su ID es negativo"
+#define TXT_ERROR_ID_NEGATIVO "No podemos cargar el usuario porque su ID es negativo"
 
 #define MIN_ARG 1
 #define CANT_ARG 0
