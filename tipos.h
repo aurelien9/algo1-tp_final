@@ -18,6 +18,7 @@
 #define TXT_ERROR_FORMATO_ARG "Los argumentos de eliminar deben ser de la forma u:usuario o i:id"
 #define TXT_ID_YA_EXISTA "No podemos cargar el usuario porque su ID ya exista"
 #define TXT_ERROR_ID_NEGATIVO "No podemos cargar el usuario porque su ID es negativo"
+#define TXT_ERROR_OUT "El argumento ingresado para la salida no es correcto o esta vacio"
 
 #define MIN_ARG 1
 #define CANT_ARG 0
@@ -59,7 +60,8 @@ typedef enum {
 	RV_ERROR_ELIMNAR,
 	RV_ERROR_FORMATO_ARG,
 	RV_ID_YA_EXISTA,
-	RV_ERROR_ID_NEGATIVO
+	RV_ERROR_ID_NEGATIVO,
+	RV_ERROR_OUT;
 }retval_t;
 
 typedef enum {
