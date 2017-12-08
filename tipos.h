@@ -61,7 +61,7 @@ typedef enum {
 	RV_ERROR_FORMATO_ARG,
 	RV_ID_YA_EXISTA,
 	RV_ERROR_ID_NEGATIVO,
-	RV_ERROR_OUT;
+	RV_ERROR_OUT
 }retval_t;
 
 typedef enum {
