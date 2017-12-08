@@ -45,22 +45,31 @@ int main(int argc, char* argv[])
 		free(eliminar);
 	}
 
-
-	if(output == SIMPLE)
-		if((rv = LISTA_recorrer(pl, LISTA_imprimir_usuario_simple, pfout)) != RV_SUCCESS)
+	switch(output)
+	{
+		case SIMPLE:
 		{
-			imprimir_estado(rv);
+			if((rv = LISTA_recorrer(pl, LISTA_imprimir_usuario_simple, pfout)) != RV_SUCCESS)
+			{
+				imprimir_estado(rv);
+			}
+			break;
 		}
 
-
-	if(output == MULTI)
-	{
-		if((rv = LISTA_recorrer(pl, LISTA_imprimir_usuario_multi, pfout)) != RV_SUCCESS)
+		case MULTI:
 		{
+			if((rv = LISTA_recorrer(pl, LISTA_imprimir_usuario_multi, pfout)) != RV_SUCCESS)
+			{
+				imprimir_estado(rv);
+			}
+			break;
+		}
+		default:
+		{
+			rv = RV_ERROR_OUT;
 			imprimir_estado(rv);
 		}
 	}
-
 	if((rv = LISTA_destruir(&pl, LISTA_destruir_usuario)) != RV_SUCCESS)
 	{
 		imprimir_estado(rv);
