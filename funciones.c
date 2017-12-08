@@ -388,79 +388,84 @@ void imprimir_estado(retval_t rv)
 {
 	switch(rv)
 	{
-	case RV_SUCCESS:
-	{
-		fprintf(stderr, "%s\n", TXT_SUCCESS);
-		break;
-	}
-	case RV_ILLEGAL:
-	{
-		fprintf(stderr, "%s: %s\n", ERR_PREFIJO, TXT_ILLEGAL);
-		break;
-	}
-	case RV_ENOMEM:
-	{
-		fprintf(stderr, "%s: %s\n", ERR_PREFIJO, TXT_ENOMEM);
-		break;
-	}
-	case RV_ERROR_CANT_ARGC:
-	{
-		fprintf(stderr, "%s: %s\n", ERR_PREFIJO, TXT_ERROR_CANT_ARGC);
-		break;
-	}
-	case RV_ERROR_OPEN_ARCHIVO:
-	{
-		fprintf(stderr, "%s: %s\n", ERR_PREFIJO, TXT_ERROR_OPEN_ARCHIVO);
-		break;
-	}
-	case RV_ERROR_DESTRUIR_LISTA:
-	{
-		fprintf(stderr, "%s: %s\n", ERR_PREFIJO, TXT_ERROR_DESTRUIR_LISTA);
-		break;
-	}
-	case RV_ERROR_IMPRIMIR:
-	{
-		fprintf(stderr, "%s: %s\n", ERR_PREFIJO, TXT_ERROR_IMPRIMIR);
-		break;
-	}
-	case RV_ERROR_ARG_ELIMNAR:
-	{
-		fprintf(stderr, "%s: %s\n", ERR_PREFIJO, TXT_ERROR_ARG_ELIMINAR);
-		break;
-	}
-	case RV_USER_NO_EXIST:
-	{
-		fprintf(stderr, "%s: %s\n", ERR_PREFIJO, TXT_USER_NO_EXIST);
-		break;
-	}
-	case RV_ERROR_ELIMNAR:
-	{
-		fprintf(stderr, "%s: %s\n", ERR_PREFIJO, TXT_ERROR_ELIMINAR);
-		break;
-	}
-	case RV_ERROR_MIN_ARG:
-	{
-		fprintf(stderr, "%s: %s\n", ERR_PREFIJO, TXT_ERROR_MIN_ARG);
-		break;
-	}
-	case RV_ERROR_FORMATO_ARG:
-	{
-		fprintf(stderr, "%s: %s\n", ERR_PREFIJO, TXT_ERROR_FORMATO_ARG);
-		break;
-	}
-	case RV_ID_YA_EXISTA:
-	{
-		fprintf(stderr, "%s\n", TXT_ID_YA_EXISTA);
-		break;
-	}
-	case RV_ERROR_ID_NEGATIVO:
-	{
-		fprintf(stderr, "%s\n", TXT_ERROR_ID_NEGATIVO);
-		break;
-	}
-	default:
-	{
-		fprintf(stderr, "%s: %s\n", ERR_PREFIJO, TXT_ERROR_ESTADO);
-	}
+		case RV_SUCCESS:
+		{
+			fprintf(stderr, "%s\n", TXT_SUCCESS);
+			break;
+		}
+		case RV_ILLEGAL:
+		{
+			fprintf(stderr, "%s: %s\n", ERR_PREFIJO, TXT_ILLEGAL);
+			break;
+		}
+		case RV_ENOMEM:
+		{
+			fprintf(stderr, "%s: %s\n", ERR_PREFIJO, TXT_ENOMEM);
+			break;
+		}
+		case RV_ERROR_CANT_ARGC:
+		{
+			fprintf(stderr, "%s: %s\n", ERR_PREFIJO, TXT_ERROR_CANT_ARGC);
+			break;
+		}
+		case RV_ERROR_OPEN_ARCHIVO:
+		{
+			fprintf(stderr, "%s: %s\n", ERR_PREFIJO, TXT_ERROR_OPEN_ARCHIVO);
+			break;
+		}
+		case RV_ERROR_DESTRUIR_LISTA:
+		{
+			fprintf(stderr, "%s: %s\n", ERR_PREFIJO, TXT_ERROR_DESTRUIR_LISTA);
+			break;
+		}
+		case RV_ERROR_IMPRIMIR:
+		{
+			fprintf(stderr, "%s: %s\n", ERR_PREFIJO, TXT_ERROR_IMPRIMIR);
+			break;
+		}
+		case RV_ERROR_ARG_ELIMNAR:
+		{
+			fprintf(stderr, "%s: %s\n", ERR_PREFIJO, TXT_ERROR_ARG_ELIMINAR);
+			break;
+		}
+		case RV_USER_NO_EXIST:
+		{
+			fprintf(stderr, "%s: %s\n", ERR_PREFIJO, TXT_USER_NO_EXIST);
+			break;
+		}
+		case RV_ERROR_ELIMNAR:
+		{
+			fprintf(stderr, "%s: %s\n", ERR_PREFIJO, TXT_ERROR_ELIMINAR);
+			break;
+		}
+		case RV_ERROR_MIN_ARG:
+		{
+			fprintf(stderr, "%s: %s\n", ERR_PREFIJO, TXT_ERROR_MIN_ARG);
+			break;
+		}
+		case RV_ERROR_FORMATO_ARG:
+		{
+			fprintf(stderr, "%s: %s\n", ERR_PREFIJO, TXT_ERROR_FORMATO_ARG);
+			break;
+		}
+		case RV_ID_YA_EXISTA:
+		{
+			fprintf(stderr, "%s\n", TXT_ID_YA_EXISTA);
+			break;
+		}
+		case RV_ERROR_ID_NEGATIVO:
+		{
+			fprintf(stderr, "%s\n", TXT_ERROR_ID_NEGATIVO);
+			break;
+		}
+		case RV_ERROR_OUT:
+		{
+			fprintf(stderr, "%s\n", TXT_ERROR_OUT);
+			break;
+		}
+		default:
+		{
+			fprintf(stderr, "%s: %s\n", ERR_PREFIJO, TXT_ERROR_ESTADO);
+		}
 	}
 }
