@@ -21,7 +21,8 @@ retval_t cargar_usuarios(lista_t *pl, char** arreglo_pfin, size_t cant_file)
 
 	for(i = 0; i < cant_file; i++)
 	{
-		pfin = fopen(arreglo_pfin[i], "r");
+		if((pfin = fopen(arreglo_pfin[i], "r")) == NULL)
+			return RV_ERROR_OPEN_ARCHIVO;
 		while(fgets(renglon, MAX_LENGTH, pfin) != NULL)
 		{
 			if(renglon[0] == CROCHETE_1)

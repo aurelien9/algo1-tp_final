@@ -47,28 +47,28 @@ int main(int argc, char* argv[])
 
 	switch(output)
 	{
-		case SIMPLE:
+	case SIMPLE:
+	{
+		if((rv = LISTA_recorrer(pl, LISTA_imprimir_usuario_simple, pfout)) != RV_SUCCESS)
 		{
-			if((rv = LISTA_recorrer(pl, LISTA_imprimir_usuario_simple, pfout)) != RV_SUCCESS)
-			{
-				imprimir_estado(rv);
-			}
-			break;
-		}
-
-		case MULTI:
-		{
-			if((rv = LISTA_recorrer(pl, LISTA_imprimir_usuario_multi, pfout)) != RV_SUCCESS)
-			{
-				imprimir_estado(rv);
-			}
-			break;
-		}
-		default:
-		{
-			rv = RV_ERROR_OUT;
 			imprimir_estado(rv);
 		}
+		break;
+	}
+
+	case MULTI:
+	{
+		if((rv = LISTA_recorrer(pl, LISTA_imprimir_usuario_multi, pfout)) != RV_SUCCESS)
+		{
+			imprimir_estado(rv);
+		}
+		break;
+	}
+	default:
+	{
+		rv = RV_ERROR_OUT;
+		imprimir_estado(rv);
+	}
 	}
 	if((rv = LISTA_destruir(&pl, LISTA_destruir_usuario)) != RV_SUCCESS)
 	{
